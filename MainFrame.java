@@ -17,8 +17,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyBoundsListener;
@@ -32,7 +30,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.text.AttributedString;
 import java.util.Arrays;
 import java.util.Date;
@@ -348,12 +345,6 @@ implements ClipboardOwner, TemporalProgress {
 					new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 					openMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(fileMenu, 'u', "Open URL...", "control shift O",
-					false,new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					openURLMenuItemActionPerformed(evt);
 					}
 					});
 			uiBuilder.addJSeparator(fileMenu);
@@ -1133,19 +1124,6 @@ implements ClipboardOwner, TemporalProgress {
 			getCurrentTtyrec().resetEncoding();
 	}
 
-	private void openURLMenuItemActionPerformed(ActionEvent evt) {
-		try {
-			URL u = new URL(JOptionPane.showInputDialog(
-						fileMenu, "Open which URL?"));
-			openSourceFromInputStreamable(new InputStreamableURLWrapper(u));
-		} catch (MalformedURLException ex) {
-			System.out.println(ex.getMessage());
-			return;
-		} catch (NullPointerException ex) {
-			return;
-		}
-	}
-
 	private void saveAsVideoMenuItemActionPerformed(ActionEvent evt) {
 		/* We don't check to see if analyze process is maxed out, because in
 		 * the case of streaming ttyrecs, there's no way to tell.
@@ -1736,15 +1714,6 @@ implements ClipboardOwner, TemporalProgress {
 				IllegalAccessException | UnsupportedLookAndFeelException ex) {
 			// if we can't set a system look and feel, just use the default...
 		}
-		// Set up networking, if we're allowed to.
-		try {
-			URL.setURLStreamHandlerFactory(new StreamingURLStreamHandlerFactory());
-		} catch (SecurityException e) {
-			// oh well, we just can't use those protocols because the security
-			// manager won't let us
-			System.err.println(
-					"Nonstandard protocols disabled for security reasons.\n");
-		}
 		MainFrame me = new MainFrame();
 		me.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		me.setSize(800, 600);
@@ -1785,13 +1754,8 @@ implements ClipboardOwner, TemporalProgress {
 			ddflag = false;
 			if (!sizeflag && !frameflag) {
 				// Looks like it's a filename...
-				try {
-					URL u = new URL(a);
-					me.openSourceFromInputStreamable(new InputStreamableURLWrapper(u));
-				} catch (MalformedURLException ex) {
-					File f = new File(a);
-					me.openSourceFromInputStreamable(new InputStreamableFileWrapper(f));
-				}
+				File f = new File(a);
+				me.openSourceFromInputStreamable(new InputStreamableFileWrapper(f));
 			}
 			// Check to see whether to apply forced size, or to go to a frame.
 			sizeflag = false;
