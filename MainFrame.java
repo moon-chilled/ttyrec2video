@@ -51,7 +51,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
-import javax.swing.Timer;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -93,106 +92,8 @@ implements ClipboardOwner, TemporalProgress {
 				});
 		sidebarToolbar.add(sidebarPane);
 
-		SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-				setIconImage(new ImageIcon(MainFrame.class.getClassLoader().
-							getResource("jettyplay/resources/icon.png")).getImage());
-				}
-				});
 		// set no file to be open
 		currentSource = null;
-
-		// initialize the streaming timer
-		// all this one does is change the max time on a streaming recording
-		// whose length is not known (i.e. still streaming)
-		streamingTimer = new Timer(500, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-				Ttyrec r = getCurrentTtyrec();
-				try {
-				if (r != null && r.isStreaming()
-						&& !currentSource.knownLength()) {
-				r.setLengthOffset((double) (new Date().getTime()
-							- r.getLastActivity().getTime()) / 1000.0);
-				synchSliderMaximum();
-				updateSidebar();
-				}
-				} catch (NullPointerException ex) {
-				// do nothing; source must have vanished asynchronously
-				// while trying to run the command
-				}
-				}
-				});
-		streamingTimer.start();
-
-		// initialize the playing timer
-		// default play rate is 50fps; most of the time it's very quick to
-		// update (nothing moves but the slider), so a high rate is fine
-		playTimer = new Timer(50, new ActionListener() {
-
-				public void actionPerformed(ActionEvent e) {
-				if (autoskipButton.isSelected() &&
-						previousFrameIndex != getCurrentTtyrec().getFrameCount() - 1 &&
-						(double)speedSpinner.getValue() > 0) {
-				double curTime = timeSlider.getValue() / timeScaling;
-				double nextFrameTime =
-				getCurrentTtyrec().getFrameAtIndex(previousFrameIndex + 1).
-				getRelativeTimestamp();
-				double thisFrameTime =
-				getCurrentFrame().
-				getRelativeTimestamp();
-				// We want to scale logarithmically; we reduce the length
-				// of the frame to its natural logarithm plus one, unless
-				// it's already at 1 or below.
-				if (nextFrameTime - thisFrameTime > 1 &&
-						(curTime - thisFrameTime) >
-						Math.log(nextFrameTime - thisFrameTime) + 1) {
-				// Skip to the next frame.
-				goForwardOneFrame(null);
-				return;
-				}
-				}
-				canUpdateTimeStartedAt = false; // prevent rounding error accumulation
-				if (timeSlider.getValue() != timeSlider.getMaximum() ||
-						(double)speedSpinner.getValue() < 0) {
-					// Don't update the value if already at the end and going
-					// forwards; that can cause the frame to glitch back to a previous
-					// one if there's two frames at almost the same time at the end
-					// of the recording.
-					timeSlider.setValue((int)(sliderValueStartedAt +
-								(double) (new Date().getTime() - timeStartedAt) *
-								(double)speedSpinner.getValue() * timeScaling / 1000));
-				}
-				if ((double)speedSpinner.getValue() > 0) {
-					if (previousFrameIndex == getCurrentTtyrec().getFrameCount() - 1 &&
-							(!getCurrentTtyrec().isStreaming() ||
-							 getCurrentSource().knownLength())) {
-						playing = false;
-						playButton.setSelected(false);
-						playPauseMenuItem.setSelected(false);
-						playTimer.stop();
-						updateSidebar();
-					} else if (timeSlider.getValue() == timeSlider.getMaximum())
-						goForwardOneFrame(null);
-				} else {
-					// Not quite symmetrical with the case of going forwards;
-					// the last frame can be selected only at the very end of
-					// the recording, whereas the first frame lasts for positive
-					// rather than zero time. Also, we can stop playing after
-					// rewinding to the start even if streaming, because the
-					// start of the stream doesn't move further back in time.
-					if (previousFrameIndex == 0) {
-						if (timeSlider.getValue() == timeSlider.getMinimum()) {
-							playing = false;
-							playButton.setSelected(false);
-							playPauseMenuItem.setSelected(false);
-							playTimer.stop();
-							updateSidebar();
-						}
-					} else if (timeSlider.getValue() == timeSlider.getMinimum())
-						goBackOneFrame(null);
-				}
-				}
-		});
 	}
 
 	/**
@@ -219,88 +120,14 @@ implements ClipboardOwner, TemporalProgress {
 			uiBuilder = new UIBuilder(false);
 
 			mainPanel = uiBuilder.addJPanel(getContentPane(), null);
-			timePanel = uiBuilder.addJPanel(mainPanel, BorderLayout.SOUTH);
 			JPanel mainToolbarPanel = uiBuilder.addJPanel(mainPanel, BorderLayout.CENTER);
-
-			timeSlider = uiBuilder.addJSlider(timePanel, BorderLayout.CENTER,
-					"Seek to time", new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					timeSliderStateChanged(evt);
-					}
-					});
-			timeSlider.setUI(new LoadingProgressSliderUI(timeSlider,this));
-			timeSlider.setValue(0);
-			timeSlider.setMaximum(1);
-
-			curTime = uiBuilder.addJLabel(timePanel, BorderLayout.LINE_START,
-					"0:00",SwingConstants.RIGHT);
-			maxTime = uiBuilder.addJLabel(timePanel, BorderLayout.LINE_END,
-					"0:00",SwingConstants.LEFT);
 
 			mainToolbar = uiBuilder.addJToolBar(mainToolbarPanel, BorderLayout.NORTH);
 
-			uiBuilder.addJButton(mainToolbar,"Go to the start of the recording",
-					"first.png", new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goToStart(evt);
-					}
-					});
-			uiBuilder.addJButton(mainToolbar,"Go backward one frame",
-					"backframe.png",new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goBackOneFrame(evt);
-					}
-					});
-			playButton = uiBuilder.addJToggleButton(mainToolbar,"Start or pause playback",
-					"play.png", true,new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					playButtonChanged(evt);
-					}
-					});
-			uiBuilder.addJButton(mainToolbar,"Go forward one frame",
-					"forwardframe.png",new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goForwardOneFrame(evt);
-					}
-					});
-			uiBuilder.addJButton(mainToolbar,"Go to the end of the recording",
-					"last.png",new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goToEnd(evt);
-					}
-					});
 			uiBuilder.addJSeparator(mainToolbar);
 
 			/* We do this one by hand, because it's a little complex and because
 			   there's no code reuse benefit from uiBuilder. */
-			speedSpinner = new JSpinner(new SpinnerNumberModel(Double.valueOf(1.0d),
-						null, null, Double.valueOf(1.0d)));
-			speedSpinner.setToolTipText("Speed at which to replay the ttyrec");
-			speedSpinner.setEditor(new JSpinner.DefaultEditor(speedSpinner));
-			speedSpinner.setFocusable(false);
-			((JSpinner.DefaultEditor)speedSpinner.getEditor())
-				.getTextField().setFocusable(false);
-			speedSpinner.setPreferredSize(
-					new Dimension((int)(mainToolbar.getPreferredSize().getHeight()-4),
-						(int)speedSpinner.getMinimumSize().getHeight()));
-			speedSpinner.setMaximumSize(speedSpinner.getPreferredSize());
-			((JSpinner.DefaultEditor)speedSpinner.getEditor()).getTextField()
-				.addMouseListener(new MouseAdapter() {
-						public void mouseClicked(MouseEvent evt) {
-						speedSpinnerMouseClicked(evt);
-						}
-						});
-			speedSpinner.addMouseListener(new MouseAdapter() {
-					public void mouseClicked(MouseEvent evt) {
-					speedSpinnerMouseClicked(evt);
-					}
-					});
-			speedSpinner.addChangeListener(new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					speedSpinnerStateChanged(evt);
-					}
-					});
-			mainToolbar.add(speedSpinner);
 
 			autoskipButton = uiBuilder.addJToggleButton(mainToolbar,
 					"Automatically skip past long periods of inactivity",
@@ -408,14 +235,6 @@ implements ClipboardOwner, TemporalProgress {
 					menuBarMenuItemStateChanged(evt);
 					}
 					});
-			menuBarMenuItem.setSelected(true);
-			controlBarMenuItem = uiBuilder.addJCheckBoxMenuItem(viewMenu, 'c',
-					"Control Bar", null, false, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					controlBarMenuItemStateChanged(evt);
-					}
-					});
-			controlBarMenuItem.setSelected(true);
 			uiBuilder.addJSeparator(viewMenu);
 			ButtonGroup terminalSizeGroup = new ButtonGroup();
 			JMenu terminalSizeMenu = uiBuilder.addJMenu(viewMenu, 'z', "Terminal Size");
@@ -468,75 +287,7 @@ implements ClipboardOwner, TemporalProgress {
 					}
 					});
 			JMenu goMenu = uiBuilder.addJMenu(menuBar, 'g', "Go");
-			playPauseMenuItem = uiBuilder.addJCheckBoxMenuItem(goMenu, 'p',
-					"Play", "SPACE", true, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					updatePlayPaused(evt);
-					}
-					});
 			uiBuilder.addJSeparator(goMenu);
-			uiBuilder.addJMenuItem(goMenu, 't', "To Start", "HOME", true,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goToStart(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(goMenu, 'e', "To End", "END", true,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goToEnd(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(goMenu, 'n', "Back One Frame", "LEFT", true,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goBackOneFrame(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(goMenu, 'f', "Forward One Frame", "RIGHT", true,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goForwardOneFrame(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(goMenu, 'a', "To Frame...", "G", true,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goToSpecificFrameMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJSeparator(goMenu);
-			uiBuilder.addJMenuItem(goMenu, 'q', "Quicker", "UP", false,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goQuickerMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(goMenu, 's', "Slower", "DOWN", false,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goSlowerMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(goMenu, 'n', "Normal Speed", "1", false,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goTimesOneMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(goMenu, 'i', "Specific Speed", "X", false,
-					new ActionListener () {
-					public void actionPerformed(ActionEvent evt) {
-					speedSpinnerMouseClicked(null);
-					}
-					});
-
-			uiBuilder.addJMenuItem(goMenu, 'r', "Reverse Direction", "R", false,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					goRewindMenuItemActionPerformed(evt);
-					}
-					});
 			autoskipMenuItem =uiBuilder.addJCheckBoxMenuItem(goMenu,
 					'k', "Skip Inactivity", "L", false, new ChangeListener() {
 					public void stateChanged(ChangeEvent evt) {
@@ -588,65 +339,6 @@ implements ClipboardOwner, TemporalProgress {
 		if (iStream == null) return;
 
 		openSourceFromInputStreamable(iStream);
-	}
-
-	private void timeSliderStateChanged(ChangeEvent evt) {
-		if (getCurrentTtyrec() == null) return;
-		setTimeLabels();
-		int i = getCurrentTtyrec().getFrameIndexAtRelativeTime(
-				(double) timeSlider.getValue() / timeScaling);
-		if (canUpdateSelectedFrame)
-			goToSpecificFrame(i, false);
-		else
-			canUpdateSelectedFrame = true;
-		if (!canUpdateTimeStartedAt) {
-			canUpdateTimeStartedAt = true;
-			return;
-		}
-		timeStartedAt = new Date().getTime();
-		sliderValueStartedAt = timeSlider.getValue();
-	}
-
-	private void updatePlayPaused(ChangeEvent evt) {
-		if (getCurrentTtyrec() == null) return;
-		playing = playPauseMenuItem.isSelected();
-		if (playing) {
-			timeStartedAt = new Date().getTime();
-			sliderValueStartedAt = timeSlider.getValue();
-			if ((Double)speedSpinner.getValue() == 0)
-				speedSpinner.setValue(1.0);
-			playTimer.restart();
-		} else
-			playTimer.stop();
-		if (playPauseMenuItem.isSelected() != playButton.isSelected())
-			playButton.setSelected(playPauseMenuItem.isSelected());
-		updateSidebar();
-	}
-
-	private void playButtonChanged(ChangeEvent evt) {
-		if (playPauseMenuItem.isSelected() != playButton.isSelected())
-			playPauseMenuItem.setSelected(playButton.isSelected());
-	}
-
-	private void goToStart(ActionEvent evt) {
-		goToSpecificFrame(0, true);
-	}
-
-	private void goToEnd(ActionEvent evt) {
-		// The time of the last frame might not equal the end of the recording
-		// if we're streaming. And the end of the recording might not equal the
-		// time of the last frame if the recording ends with two frames less
-		// than a millisecond apart. So the solution is to set both separately.
-		timeSlider.setValue(timeSlider.getMaximum());
-		goToSpecificFrame(getCurrentTtyrec().getFrameCount()-1, false);
-	}
-
-	private void goBackOneFrame(ActionEvent evt) {
-		goToSpecificFrame(previousFrameIndex-1, true);
-	}
-
-	private void goForwardOneFrame(ActionEvent evt) {
-		goToSpecificFrame(previousFrameIndex+1, true);
 	}
 
 	private void licenceMenuItemActionPerformed(ActionEvent evt) {
@@ -712,43 +404,6 @@ implements ClipboardOwner, TemporalProgress {
 		}
 	}
 
-	private void controlBarMenuItemStateChanged(ChangeEvent evt) {
-		timePanel.setVisible(controlBarMenuItem.isSelected());
-	}
-
-	private void goRewindMenuItemActionPerformed(ActionEvent evt) {
-		speedSpinner.setValue((Double)speedSpinner.getValue() * -1.0);
-	}
-
-	private void goTimesOneMenuItemActionPerformed(ActionEvent evt) {
-		speedSpinner.setValue(1.0);
-	}
-
-	private void goSlowerMenuItemActionPerformed(ActionEvent evt) {
-		if (!((Double)speedSpinner.getValue()).equals(1.0))
-			speedSpinner.setValue((Double)speedSpinner.getValue() - 1.0);
-		else
-			speedSpinner.setValue(-1.0);
-	}
-
-	private void goQuickerMenuItemActionPerformed(ActionEvent evt) {
-		if (!((Double)speedSpinner.getValue()).equals(-1.0))
-			speedSpinner.setValue((Double)speedSpinner.getValue() + 1.0);
-		else
-			speedSpinner.setValue(1.0);
-	}
-
-	private void goToSpecificFrameMenuItemActionPerformed(ActionEvent evt) {
-		String frameString = JOptionPane.showInputDialog(
-				encodingMenu, "Go to which frame?", ""+(previousFrameIndex+1));
-		if (frameString == null) return;
-		try {
-			goToSpecificFrame(Integer.valueOf(frameString) - 1, true);
-		} catch (NumberFormatException ex) {
-			// ignore invalid input
-		}
-	}
-
 	private void findMenuItemActionPerformed(ActionEvent evt) {
 		if (findBox == null)
 			findBox = new FindDialog(this,this);
@@ -769,18 +424,6 @@ implements ClipboardOwner, TemporalProgress {
 		setClipboardContents(new StringSelection(sb.toString()));
 	}
 
-	private void speedSpinnerStateChanged(ChangeEvent evt) {
-		if ((((Double)speedSpinner.getValue()).equals(0.0)) && playing) {
-			playPauseMenuItem.setSelected(false);
-			playButton.setSelected(false);
-			playing = false;
-			playTimer.stop();
-		}
-		sliderValueStartedAt = timeSlider.getValue();
-		timeStartedAt = new Date().getTime();
-		updateSidebar();
-	}
-
 	private void sidebarTypeComboBoxAncestorResized(HierarchyEvent evt) {
 		int oldOrientation = sidebarToolbar.getOrientation();
 		sidebarToolbar.setLayout(new BoxLayout(sidebarToolbar,
@@ -798,17 +441,6 @@ implements ClipboardOwner, TemporalProgress {
 
 	private void sidebarTypeComboBoxItemStateChanged(ItemEvent evt) {
 		updateSidebar();
-	}
-
-	private void speedSpinnerMouseClicked(MouseEvent evt) {
-		String frameString = JOptionPane.showInputDialog(
-				encodingMenu, "Set speed to what?", ""+(speedSpinner.getValue()));
-		if (frameString == null) return;
-		try {
-			speedSpinner.setValue(Double.valueOf(frameString));
-		} catch (NumberFormatException ex) {
-			// ignore invalid input
-		}
 	}
 
 	private void aboutMenuItemActionPerformed(ActionEvent evt) {
@@ -897,22 +529,6 @@ implements ClipboardOwner, TemporalProgress {
 		getCurrentSource().repeatCurrentDecodeWorker();
 	}
 
-	private void goToSpecificFrame(int frame, boolean changeTimeSlider) {
-		if (getCurrentTtyrec() == null) return;
-		if (frame < 0 || frame >= getCurrentTtyrec().getFrameCount()) return;
-		TtyrecFrame f = getCurrentTtyrec().getFrameAtIndex(frame);
-		if (changeTimeSlider) {
-			timeSlider.setValue((int)Math.ceil(
-						f.getRelativeTimestamp() * timeScaling));
-			timeSliderStateChanged(null);
-		}
-		if (frame != previousFrameIndex) {
-			f.setDirty(false);
-		}
-		previousFrameIndex = frame;
-		updateSidebar();
-	}
-
 	private String timeToString(double time) {
 		int t = (int)time;
 		if (t<0) t = 0;
@@ -925,13 +541,6 @@ implements ClipboardOwner, TemporalProgress {
 		if (t%60 < 10) s += "0";
 		s += t%60;
 		return s;
-	}
-
-	private void setTimeLabels() {
-		if (getCurrentTtyrec() == null) return;
-		maxTime.setText(timeToString(getCurrentTtyrec().getLength()));
-		curTime.setPreferredSize(maxTime.getPreferredSize());
-		curTime.setText(timeToString((double)timeSlider.getValue() / timeScaling));
 	}
 
 	private boolean oldEnabled = false;
@@ -948,18 +557,9 @@ implements ClipboardOwner, TemporalProgress {
 
 	private void unloadFile() {
 		playing = false;
-		playTimer.stop();
-		playPauseMenuItem.setSelected(false);
-		playButton.setSelected(false);
 		massSetEnabled(false);
 		if (getCurrentSource() != null) getCurrentSource().completeCancel();
 		currentSource = null;
-		maxTime.setText("0:00");
-		curTime.setPreferredSize(maxTime.getPreferredSize());
-		curTime.setText("0:00");
-		timeSlider.setValue(0);
-		timeSlider.setMaximum(1);
-		timeSlider.repaint();
 		VDUBuffer.resetCaches();
 		updateSidebar();
 	}
@@ -970,7 +570,6 @@ implements ClipboardOwner, TemporalProgress {
 		getCurrentSource().completeUnpause();
 		getCurrentSource().addDecodeListener(new ProgressListener() {
 				public void progressMade() {
-				decodeProgressMade();
 				}
 				});
 		getCurrentSource().addAnalysisListener(new ProgressListener() {
@@ -980,21 +579,11 @@ implements ClipboardOwner, TemporalProgress {
 				});
 		getCurrentSource().addReadListener(new ProgressListener() {
 				public void progressMade() {
-				readProgressMade();
 				}
 				});
 		getCurrentSource().start();
-		setTimeLabels();
 		massSetEnabled(true);
 		previousFrameIndex = 0;
-		// If viewing an inherently streaming source, set up for streaming;
-		// jump to the end and set play mode on.
-		if (iStream.mustBeStreamable()) {
-			timeSlider.setValue(timeSlider.getMaximum());
-			goToSpecificFrame(getCurrentTtyrec().getFrameCount() - 1, false);
-			playPauseMenuItem.setSelected(true);
-			playButton.setSelected(true);
-		}
 	}
 
 	// Variable declarations
@@ -1003,8 +592,6 @@ implements ClipboardOwner, TemporalProgress {
 	private JRadioButtonMenuItem autodetectTerminalSizeMenuItem;
 	private JToggleButton autoskipButton;
 	private JCheckBoxMenuItem autoskipMenuItem;
-	private JCheckBoxMenuItem controlBarMenuItem;
-	private JLabel curTime;
 	private JRadioButtonMenuItem disallowBoldMenuItem;
 	private JMenu encodingMenu;
 	private JMenu fileMenu;
@@ -1014,19 +601,13 @@ implements ClipboardOwner, TemporalProgress {
 	private JRadioButtonMenuItem latin1EncodingMenuItem;
 	private JPanel mainPanel;
 	private JToolBar mainToolbar;
-	private JLabel maxTime;
 	private JMenuBar menuBar;
 	private JCheckBoxMenuItem menuBarMenuItem;
-	private JToggleButton playButton;
-	private JCheckBoxMenuItem playPauseMenuItem;
 	private JMenu screenshotMenu;
 	private JCheckBoxMenuItem sidebarMenuItem;
 	private JToolBar sidebarToolbar;
 	private JPanel sidebarToolbarPanel;
 	private JComboBox<String> sidebarTypeComboBox;
-	private JSpinner speedSpinner;
-	private JPanel timePanel;
-	private JSlider timeSlider;
 	private JCheckBoxMenuItem toolBarMenuItem;
 	private JRadioButtonMenuItem unicodeEncodingMenuItem;
 	private JMenu viewMenu;
@@ -1040,8 +621,6 @@ implements ClipboardOwner, TemporalProgress {
 	// to avoid an integer overflow
 	private int timeScaling = 1000;
 	private boolean playing = false;
-	private final Timer playTimer;
-	private final Timer streamingTimer;
 	private int previousFrameIndex = -1;
 	private long timeStartedAt;
 	private int sliderValueStartedAt;
@@ -1073,53 +652,11 @@ implements ClipboardOwner, TemporalProgress {
 		return getCurrentTtyrec().getFrameAtIndex(getCurrentSource().decodeProgress()-1).getRelativeTimestamp();
 	}
 
-	private void synchSliderMaximum() {
-		if (getCurrentTtyrec() == null) return;
-		boolean atmax = timeSlider.getValue() == timeSlider.getMaximum();
-		canUpdateTimeStartedAt = false;
-		canUpdateSelectedFrame = false;
-		timeSlider.setMaximum((int) (getCurrentTtyrec().getLength() * timeScaling));
-		if (atmax && playing) {
-			canUpdateTimeStartedAt = true;
-			// to avoid glitches, let the play loop handle updating the
-			// selected frame
-			canUpdateSelectedFrame = false;
-			timeSlider.setValue(timeSlider.getMaximum());
-		}
-		timeSlider.repaint();        
-		updateSidebar();
-		setTimeLabels();
-	}
-
-	/**
-	 * A listener that should be called whenever progress has been made in
-	 * reading an input source for a currently opened ttyrec.
-	 */
-	public void readProgressMade() {
-		synchSliderMaximum();
-	}
-
-	/**
-	 * A listener that should be called whenever progress has been made in
-	 * decoding a currently opened ttyrec.
-	 */
-	public void decodeProgressMade() {
-		timeSlider.repaint();
-		updateSidebar();
-		if (getCurrentTtyrec() != null &&
-				getCurrentTtyrec().getFrameCount() > previousFrameIndex &&
-				getCurrentFrame().isDirty()) {
-			getCurrentFrame().setDirty(false);
-		}
-	}
-
 	/**
 	 * A listener that should be called whenever progress has been made in
 	 * analysing a currently open ttyrec.
 	 */
 	public void analysisProgressMade() {
-		synchSliderMaximum();
-		setTimeLabels();
 		updateSidebar();
 		// Synch the selected encoding from the ttyrec...
 		if (getCurrentTtyrec().getEncoding() == Ttyrec.Encoding.Autodetect)
@@ -1142,7 +679,6 @@ implements ClipboardOwner, TemporalProgress {
 		if (getCurrentTtyrec().getWantedFrame() > -1 &&
 				getCurrentTtyrec().getFrameCount() >
 				getCurrentTtyrec().getWantedFrame()) {
-			goToSpecificFrame(getCurrentTtyrec().getWantedFrame(), true);
 			getCurrentTtyrec().setWantedFrame(-1);
 		}
 	}
@@ -1160,15 +696,12 @@ implements ClipboardOwner, TemporalProgress {
 			AttributedString[] as = new AttributedString[7];
 			as[0] = new AttributedString(playing ? "Playing" : "Paused");
 			as[0].addAttribute(TextAttribute.WEIGHT,TextAttribute.WEIGHT_BOLD);
-			double time = (double)timeSlider.getValue() / timeScaling;
 			as[1] = new AttributedString("Frame: " + (previousFrameIndex+1) +
 					" / " + getCurrentTtyrec().getFrameCount());
 			as[1].addAttribute(TextAttribute.WEIGHT,TextAttribute.WEIGHT_BOLD,0,5);
-			as[2] = new AttributedString("Time: " + timeToString(time) +
-					" / " + timeToString(getCurrentTtyrec().getLength()));
+			as[2] = new AttributedString("Time: ");
 			as[2].addAttribute(TextAttribute.WEIGHT,TextAttribute.WEIGHT_BOLD,0,4);
-			as[3] = new AttributedString("Speed: x" + speedSpinner.getValue() +
-					(autoskipButton.isSelected() ? " log" : ""));
+			as[3] = new AttributedString("Speed: ");
 			as[3].addAttribute(TextAttribute.WEIGHT,TextAttribute.WEIGHT_BOLD,0,5);
 			try {
 				as[4] = new AttributedString("Size: " +
@@ -1232,7 +765,6 @@ implements ClipboardOwner, TemporalProgress {
 				continue;
 			}
 			if (getCurrentTtyrec().getFrameAtIndex(i).containsPattern(p)) {
-				goToSpecificFrame(i, true);
 				return "Found at frame " + i + ".";
 			}
 		}
@@ -1241,7 +773,6 @@ implements ClipboardOwner, TemporalProgress {
 					i != previousFrameIndex;
 					i += searchForward ? 1 : -1) {
 				if (getCurrentTtyrec().getFrameAtIndex(i).containsPattern(p)) {
-					goToSpecificFrame(i, true);
 					return "Found at frame " + i + " (wrapped).";
 				}
 			}
@@ -1289,9 +820,6 @@ implements ClipboardOwner, TemporalProgress {
 						{new AttributedString("No annotations available.")});
 			} else {
 				sidebarPane.setStartToEnd(false);
-				sidebarPane.setContents(getCurrentFrame().
-						getRawDataIterator((double)timeSlider.getValue()
-							/ timeScaling, 1));
 			}
 		}
 		if (sidebarTypeComboBox.getSelectedIndex() == 3) {
@@ -1301,9 +829,6 @@ implements ClipboardOwner, TemporalProgress {
 						{new AttributedString("No file loaded.")});
 			} else {
 				sidebarPane.setStartToEnd(false);
-				sidebarPane.setContents(getCurrentFrame().
-						getRawDataIterator((double)timeSlider.getValue()
-							/ timeScaling, 0));
 			}
 		}
 	}
@@ -1362,7 +887,6 @@ implements ClipboardOwner, TemporalProgress {
 				System.err.println("filenames   Load the given file/files");
 				System.err.println("-z 80x24    Force terminal size to 80x24 (likewise for other sizes)");
 				System.err.println("-f 1200     Jump to frame 1200 upon loading (likewise for other frames)");
-				System.err.println("-s 4        Set speed to 4x realtime (likewise for other speeds)");
 				System.err.println("-l          Automatically fast-forward through periods of inactivity");
 				System.err.println("--          Treat next arg as a filename even if it starts with -");
 				System.err.println("-h          Show this help, then exit");
@@ -1385,21 +909,11 @@ implements ClipboardOwner, TemporalProgress {
 		me.setVisible(true);
 		// Apply the effects of options
 		ddflag = false;
-		boolean speedflag = false;
 		boolean sizeflag = false;
 		boolean frameflag = false;
 		String pendingSize = null;
 		String pendingFrame = null;
 		for (String a : args) {
-			if (speedflag) {
-				try {
-					me.speedSpinner.setValue(Double.valueOf(a));
-				} catch (NumberFormatException ex) {
-					// ignore invalid input
-				}
-				speedflag = false;
-				continue;
-			}
 			// if size or frame is being set this arg, turn on ddflag so the
 			// arg isn't interpreted as anything else, and fall past the
 			// filename check to the size/frame check
@@ -1411,7 +925,6 @@ implements ClipboardOwner, TemporalProgress {
 				me.updateSidebar();
 				continue;
 			}
-			if(a.equals("-s") && !ddflag) {speedflag = true; continue;}
 			if(a.equals("-f") && !ddflag) {frameflag = true; continue;}
 			if(a.equals("-z") && !ddflag) {sizeflag = true; continue;}
 			if(a.equals("--") && !ddflag) {ddflag = true; continue;}            
