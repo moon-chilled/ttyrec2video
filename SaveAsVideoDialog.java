@@ -48,10 +48,10 @@ public class SaveAsVideoDialog {
 		String fontName = "DejaVu Sans Mono";
 
 		final VideoCodec[] codecs = {
-			new ZMBVVideoCodec(1080, new Font(fontName,Font.PLAIN,11),
+			new ZMBVVideoCodec(720, new Font(fontName,Font.PLAIN,11),
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
 					true),
-			new RawVideoCodec(1080, new Font(fontName,Font.PLAIN,11),
+			new RawVideoCodec(720, new Font(fontName,Font.PLAIN,11),
 					 RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
 					      true)};
 
