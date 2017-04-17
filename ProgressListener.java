@@ -11,8 +11,8 @@ package jettyplay;
  * @author ais523
  */
 public interface ProgressListener {
-    /**
-     * Called whenever progress is made.
-     */
-    public void progressMade();
+	/**
+	 * Called whenever progress is made.
+	 */
+	public void progressMade();
 }

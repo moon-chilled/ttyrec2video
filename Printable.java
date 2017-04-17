@@ -12,6 +12,6 @@ import java.awt.Graphics;
  */
 public interface Printable {
 
-    void print(Graphics g);
-    
+	void print(Graphics g);
+
 }

@@ -51,154 +51,154 @@ import javax.swing.JComponent;
  */
 @SuppressWarnings("serial")
 public class SwingTerminal extends JComponent {
-    /** lightweight component definitions */
-    private final static long VDU_EVENTS =
-                AWTEvent.FOCUS_EVENT_MASK | AWTEvent.ACTION_EVENT_MASK;
-    protected Insets insets;                            /* size of the border */
-    protected boolean raised;            /* indicator if the border is raised */
+	/** lightweight component definitions */
+	private final static long VDU_EVENTS =
+		AWTEvent.FOCUS_EVENT_MASK | AWTEvent.ACTION_EVENT_MASK;
+	protected Insets insets;                            /* size of the border */
+	protected boolean raised;            /* indicator if the border is raised */
 
-    private VDURenderer renderer;
-    
-    /**
-     * Create a new terminal that draws using a default renderer.
-     */
-    public SwingTerminal() {
-        // lightweight component handling
-        enableEvents(VDU_EVENTS);
-        setOpaque(true);
-        setDoubleBuffered(true);
-        setForeground(Color.white);
-        setBackground(Color.black);
+	private VDURenderer renderer;
 
-        this.renderer = new VDURenderer(new vt320(), getGraphics());
-    }
+	/**
+	 * Create a new terminal that draws using a default renderer.
+	 */
+	public SwingTerminal() {
+		// lightweight component handling
+		enableEvents(VDU_EVENTS);
+		setOpaque(true);
+		setDoubleBuffered(true);
+		setForeground(Color.white);
+		setBackground(Color.black);
 
-    public void setVDUBuffer(VDUBuffer buffer) {
-        renderer.setVDUBuffer(buffer);
-        setBounds(getX(), getY(), getWidth(), getHeight());
-        repaint();
-    }
+		this.renderer = new VDURenderer(new vt320(), getGraphics());
+	}
 
-    public void setTextAntialiasingType(Object textAntialiasingType) {
-        renderer.setTextAntialiasingType(textAntialiasingType);
-        repaint();
-    }
+	public void setVDUBuffer(VDUBuffer buffer) {
+		renderer.setVDUBuffer(buffer);
+		setBounds(getX(), getY(), getWidth(), getHeight());
+		repaint();
+	}
 
-    @Override
-    public void setFont(Font font) {
-        super.setFont(font);
-        renderer.setFont(font, getGraphics());
-        repaint();
-    }
+	public void setTextAntialiasingType(Object textAntialiasingType) {
+		renderer.setTextAntialiasingType(textAntialiasingType);
+		repaint();
+	}
 
-    public void setColorPrinting(boolean colorPrint) {
-        renderer.setColorPrinting(colorPrint);
-    }
+	@Override
+		public void setFont(Font font) {
+			super.setFont(font);
+			renderer.setFont(font, getGraphics());
+			repaint();
+		}
 
-    @Override
-    public void setBounds(int x, int y, int w, int h) {
-        super.setBounds(x, y, w, h);
-        renderer.setBounds(x, y, w, h, getGraphics());
-    }
+	public void setColorPrinting(boolean colorPrint) {
+		renderer.setColorPrinting(colorPrint);
+	}
 
-    /**
-     * Set the border thickness and the border type.
-     * @param thickness border thickness in pixels, zero means no border
-     * @param raised a boolean indicating a raised or embossed border
-     */
-    public void setBorder(int thickness, boolean raised) {
-        if (thickness == 0) {
-            insets = null;
-        } else {
-            insets = new Insets(thickness + 1, thickness + 1, thickness + 1, thickness + 1);
-        }
-        this.raised = raised;
-    }
-    
-    public void redraw(Graphics g, int w, int h) {
-        renderer.redraw(g, w, h);
-        // draw border
-        if (insets != null) {
-            g.setColor(getBackground());
-            int xoffset = (renderer.getCurrentTerminalWidth() - w) / 2 - 1;
-            int yoffset = (renderer.getCurrentTerminalHeight() - h) / 2 - 1;
-            for (int i = insets.top - 1; i >= 0; i--) {
-                g.draw3DRect(xoffset - i, yoffset - i,
-                        renderer.getCurrentTerminalWidth() + 1 + i * 2,
-                        renderer.getCurrentTerminalHeight() + 1 + i * 2, raised);
-            }
-        }
-    }
+	@Override
+		public void setBounds(int x, int y, int w, int h) {
+			super.setBounds(x, y, w, h);
+			renderer.setBounds(x, y, w, h, getGraphics());
+		}
 
-    private void chainPrinting(Graphics g) {
-        super.print(g);
-    }
-    
-    @Override
-    public void print(Graphics g) {
-        final SwingTerminal finalThis = this;
-        renderer.print(g, new Printable(){
-            public void print(Graphics g){
-                finalThis.chainPrinting(g);
-            }
-        });
-    }
+	/**
+	 * Set the border thickness and the border type.
+	 * @param thickness border thickness in pixels, zero means no border
+	 * @param raised a boolean indicating a raised or embossed border
+	 */
+	public void setBorder(int thickness, boolean raised) {
+		if (thickness == 0) {
+			insets = null;
+		} else {
+			insets = new Insets(thickness + 1, thickness + 1, thickness + 1, thickness + 1);
+		}
+		this.raised = raised;
+	}
 
-    public VDUBuffer getVDUBuffer() {
-        return renderer.getVDUBuffer();
-    }
+	public void redraw(Graphics g, int w, int h) {
+		renderer.redraw(g, w, h);
+		// draw border
+		if (insets != null) {
+			g.setColor(getBackground());
+			int xoffset = (renderer.getCurrentTerminalWidth() - w) / 2 - 1;
+			int yoffset = (renderer.getCurrentTerminalHeight() - h) / 2 - 1;
+			for (int i = insets.top - 1; i >= 0; i--) {
+				g.draw3DRect(xoffset - i, yoffset - i,
+						renderer.getCurrentTerminalWidth() + 1 + i * 2,
+						renderer.getCurrentTerminalHeight() + 1 + i * 2, raised);
+			}
+		}
+	}
 
-    public Object getTextAntialiasingType() {
-        return renderer.getTextAntialiasingType();
-    }
+	private void chainPrinting(Graphics g) {
+		super.print(g);
+	}
 
-    @Override
-    public Dimension getSize() {
-        return renderer.getSize();
-    }
+	@Override
+		public void print(Graphics g) {
+			final SwingTerminal finalThis = this;
+			renderer.print(g, new Printable(){
+					public void print(Graphics g){
+					finalThis.chainPrinting(g);
+					}
+					});
+		}
 
-    @Override
-    public Dimension getPreferredSize() {
-        return renderer.getPreferredSize();
-    }
+	public VDUBuffer getVDUBuffer() {
+		return renderer.getVDUBuffer();
+	}
 
-    @Override
-    public Font getFont() {
-        return renderer.getFont();
-    }
+	public Object getTextAntialiasingType() {
+		return renderer.getTextAntialiasingType();
+	}
 
-    public String asHTML() {
-        return renderer.asHTML();
-    }
+	@Override
+		public Dimension getSize() {
+			return renderer.getSize();
+		}
 
-    public int getCurrentTerminalWidth() {
-        return renderer.getCurrentTerminalWidth();
-    }
+	@Override
+		public Dimension getPreferredSize() {
+			return renderer.getPreferredSize();
+		}
 
-    public int getCurrentTerminalHeight() {
-        return renderer.getCurrentTerminalHeight();
-    }
+	@Override
+		public Font getFont() {
+			return renderer.getFont();
+		}
 
-    public void setAllowBold(boolean bold) {
-        renderer.setAllowBold(bold);
-    }
-    
-    /**
-     * Paint the current screen.
-     * @param g The Graphics to paint on.
-     */
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        redraw(g, getWidth(), getHeight());
-    }
+	public String asHTML() {
+		return renderer.asHTML();
+	}
 
-    /**
-     * The insets of the character display define the border.
-     * @return Insets border thickness in pixels
-     */
-    @Override
-    public Insets getInsets() {
-        return insets == null ? new Insets(0,0,0,0) : insets;
-    }
+	public int getCurrentTerminalWidth() {
+		return renderer.getCurrentTerminalWidth();
+	}
+
+	public int getCurrentTerminalHeight() {
+		return renderer.getCurrentTerminalHeight();
+	}
+
+	public void setAllowBold(boolean bold) {
+		renderer.setAllowBold(bold);
+	}
+
+	/**
+	 * Paint the current screen.
+	 * @param g The Graphics to paint on.
+	 */
+	@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			redraw(g, getWidth(), getHeight());
+		}
+
+	/**
+	 * The insets of the character display define the border.
+	 * @return Insets border thickness in pixels
+	 */
+	@Override
+		public Insets getInsets() {
+			return insets == null ? new Insets(0,0,0,0) : insets;
+		}
 }

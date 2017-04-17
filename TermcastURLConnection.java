@@ -15,17 +15,17 @@ import java.net.URL;
  * @author ais523
  */
 class TermcastURLConnection extends TelnetURLConnection {
-    private final String prefix;
+	private final String prefix;
 
-    public TermcastURLConnection(URL u, String prefix) {
-        super(u);
-        this.prefix = prefix;
-    }
+	public TermcastURLConnection(URL u, String prefix) {
+		super(u);
+		this.prefix = prefix;
+	}
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        InputStream i = super.getInputStream();
-        OutputStream o = s.getOutputStream();
-        return new TermcastFilterStream(i,o,prefix,url);
-    }
+	@Override
+		public InputStream getInputStream() throws IOException {
+			InputStream i = super.getInputStream();
+			OutputStream o = s.getOutputStream();
+			return new TermcastFilterStream(i,o,prefix,url);
+		}
 }

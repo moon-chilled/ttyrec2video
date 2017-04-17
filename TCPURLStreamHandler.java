@@ -16,8 +16,8 @@ import java.net.URLStreamHandler;
  */
 class TCPURLStreamHandler extends URLStreamHandler {
 
-    @Override
-    protected URLConnection openConnection(URL u) throws IOException {
-        return new TCPURLConnection(u);
-    }
+	@Override
+		protected URLConnection openConnection(URL u) throws IOException {
+			return new TCPURLConnection(u);
+		}
 }

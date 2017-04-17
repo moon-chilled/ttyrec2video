@@ -12,11 +12,11 @@ package jettyplay;
  * @author ais523
  */
 class TtyrecException extends Exception {
-    /**
-     * Creates a new ttyrec exception.
-     * @param Message Why the exception was thrown
-     */
-    public TtyrecException(String Message) {
-        super(Message);
-    }
+	/**
+	 * Creates a new ttyrec exception.
+	 * @param Message Why the exception was thrown
+	 */
+	public TtyrecException(String Message) {
+		super(Message);
+	}
 }

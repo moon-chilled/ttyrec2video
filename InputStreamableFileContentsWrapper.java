@@ -15,92 +15,92 @@ import java.net.URISyntaxException;
  * @author ais523
  */
 public class InputStreamableFileContentsWrapper implements InputStreamable {
-    private final Object fc;
+	private final Object fc;
 
-    private Class<?> getFileContentsClass() throws ClassNotFoundException {
-        return getClass().getClassLoader().loadClass("javax.jnlp.FileContents");
-    }
+	private Class<?> getFileContentsClass() throws ClassNotFoundException {
+		return getClass().getClassLoader().loadClass("javax.jnlp.FileContents");
+	}
 
-    /**
-     * Creates an InputStreamable that works the same way as a given
-     * FileContents object.
-     * @param fc The FileContents object to wrap. This must be a FileContents
-     * despite being declared as an Object (and it's not verified that it is);
-     * the type is given as Object for compatibility with Java environments in
-     * which FileContents does not exist.
-     */
-    public InputStreamableFileContentsWrapper(Object fc) {
-        this.fc = fc;
-    }
+	/**
+	 * Creates an InputStreamable that works the same way as a given
+	 * FileContents object.
+	 * @param fc The FileContents object to wrap. This must be a FileContents
+	 * despite being declared as an Object (and it's not verified that it is);
+	 * the type is given as Object for compatibility with Java environments in
+	 * which FileContents does not exist.
+	 */
+	public InputStreamableFileContentsWrapper(Object fc) {
+		this.fc = fc;
+	}
 
-    public InputStream getInputStream() throws FileNotFoundException {
-        InputStream i = null;
-        try { 
-            i = (InputStream) getFileContentsClass().getMethod("getInputStream").
-                invoke(fc);
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                 SecurityException | IllegalAccessException |
-                 IllegalArgumentException | InvocationTargetException ex) {
-        }
-        if (i == null) throw new FileNotFoundException();
-        return i;
-    }
+	public InputStream getInputStream() throws FileNotFoundException {
+		InputStream i = null;
+		try { 
+			i = (InputStream) getFileContentsClass().getMethod("getInputStream").
+				invoke(fc);
+		} catch (ClassNotFoundException | NoSuchMethodException |
+				SecurityException | IllegalAccessException |
+				IllegalArgumentException | InvocationTargetException ex) {
+		}
+		if (i == null) throw new FileNotFoundException();
+		return i;
+	}
 
-    public URI getURI() throws URISyntaxException {
-        URI u = null;
-        try {
-            String n = (String) getFileContentsClass().getMethod("getName").
-                invoke(fc);
-            u = new File(n).toURI();
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                 SecurityException | IllegalAccessException |
-                 IllegalArgumentException | InvocationTargetException ex) {
-        }
-        if (u == null) throw new URISyntaxException("","Filename not available");
-        return u;
-    }
+	public URI getURI() throws URISyntaxException {
+		URI u = null;
+		try {
+			String n = (String) getFileContentsClass().getMethod("getName").
+				invoke(fc);
+			u = new File(n).toURI();
+		} catch (ClassNotFoundException | NoSuchMethodException |
+				SecurityException | IllegalAccessException |
+				IllegalArgumentException | InvocationTargetException ex) {
+		}
+		if (u == null) throw new URISyntaxException("","Filename not available");
+		return u;
+	}
 
-    public boolean isReadable() {
-        try {
-            Boolean b = (Boolean) getFileContentsClass().getMethod("canRead").
-                invoke(fc);
-            return b;
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                 SecurityException | IllegalAccessException |
-                 IllegalArgumentException | InvocationTargetException ex) {
-            return false;
-        }
-    }
+	public boolean isReadable() {
+		try {
+			Boolean b = (Boolean) getFileContentsClass().getMethod("canRead").
+				invoke(fc);
+			return b;
+		} catch (ClassNotFoundException | NoSuchMethodException |
+				SecurityException | IllegalAccessException |
+				IllegalArgumentException | InvocationTargetException ex) {
+			return false;
+		}
+	}
 
-    public long getLength() {
-        try {
-            Long l = (Long) getFileContentsClass().getMethod("getLength").
-                invoke(fc);
-            return l;
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                 SecurityException | IllegalAccessException |
-                 IllegalArgumentException | InvocationTargetException ex) {
-            return 0;
-        }
-    }
+	public long getLength() {
+		try {
+			Long l = (Long) getFileContentsClass().getMethod("getLength").
+				invoke(fc);
+			return l;
+		} catch (ClassNotFoundException | NoSuchMethodException |
+				SecurityException | IllegalAccessException |
+				IllegalArgumentException | InvocationTargetException ex) {
+			return 0;
+		}
+	}
 
-    public boolean isEOFPermanent() {
-        return false;
-    }
+	public boolean isEOFPermanent() {
+		return false;
+	}
 
-    public boolean couldBeStreamable() {
-        return true;
-    }
+	public boolean couldBeStreamable() {
+		return true;
+	}
 
-    public boolean mustBeStreamable() {
-        return false;
-    }
+	public boolean mustBeStreamable() {
+		return false;
+	}
 
-    public void cancelIO() {
-        try {
-            getInputStream().close();
-        } catch (Exception ex) {
-            // closed already or never started, nothing to do here...
-        }
-    }
+	public void cancelIO() {
+		try {
+			getInputStream().close();
+		} catch (Exception ex) {
+			// closed already or never started, nothing to do here...
+		}
+	}
 }

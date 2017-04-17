@@ -16,13 +16,13 @@ import java.net.URLStreamHandler;
  */
 class TelnetURLStreamHandler extends URLStreamHandler {
 
-    @Override
-    protected URLConnection openConnection(URL u) throws IOException {
-        return new TelnetURLConnection(u);
-    }
+	@Override
+		protected URLConnection openConnection(URL u) throws IOException {
+			return new TelnetURLConnection(u);
+		}
 
-    @Override
-    protected int getDefaultPort() {
-        return 23;
-    }
+	@Override
+		protected int getDefaultPort() {
+			return 23;
+		}
 }

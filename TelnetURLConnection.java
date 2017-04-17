@@ -16,14 +16,14 @@ import java.net.URL;
  */
 class TelnetURLConnection extends TCPURLConnection {
 
-    public TelnetURLConnection(URL u) {
-        super(u);
-    }
+	public TelnetURLConnection(URL u) {
+		super(u);
+	}
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        InputStream i = super.getInputStream();
-        OutputStream o = s.getOutputStream();
-        return new TelnetFilterStream(i,o);
-    }
+	@Override
+		public InputStream getInputStream() throws IOException {
+			InputStream i = super.getInputStream();
+			OutputStream o = s.getOutputStream();
+			return new TelnetFilterStream(i,o);
+		}
 }
