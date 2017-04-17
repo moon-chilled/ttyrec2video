@@ -76,8 +76,7 @@ import javax.swing.event.ChangeListener;
  * The application's main frame.
  */
 @SuppressWarnings("serial")
-public class MainFrame extends JFrame
-implements ClipboardOwner, TemporalProgress {
+public class MainFrame extends JFrame {
 
 	/**
 	 * Creates a new main window for the Jettyplay application.
@@ -409,7 +408,6 @@ implements ClipboardOwner, TemporalProgress {
 			sb.append(s);
 			sb.append('\n');
 		}
-		setClipboardContents(new StringSelection(sb.toString()));
 	}
 
 	private void sidebarTypeComboBoxAncestorResized(HierarchyEvent evt) {
@@ -486,28 +484,6 @@ implements ClipboardOwner, TemporalProgress {
 		autodetectTerminalSizeMenuItem.setSelected(false);
 		fixedTerminalSizeMenuItem.setSelected(true);
 		getCurrentSource().repeatCurrentDecodeWorker();
-	}
-
-	private void setClipboardContents(Transferable t) {
-		try {
-			this.getToolkit().
-				getSystemClipboard().setContents(t, this);
-		} catch (java.security.AccessControlException ex) {
-			try {
-				// Try using a JNLP service to access the clipboard.
-
-				// ClipboardService cs = (ClipboardService) ServiceManager.lookup("javax.jnlp.ClipboardService");
-				Object cs = getClass().getClassLoader().loadClass("javax.jnlp.ServiceManager").
-					getMethod("lookup", String.class).invoke(null, "javax.jnlp.ClipboardService");
-				// cs.setContents(t);
-				getClass().getClassLoader().loadClass("javax.jnlp.ClipboardService").
-					getMethod("setContents", Transferable.class).invoke(cs, t);
-			} catch (ClassNotFoundException | NoSuchMethodException |
-					SecurityException | IllegalAccessException |
-					IllegalArgumentException | InvocationTargetException ex1) {
-				return;
-			}
-		}
 	}
 
 	private void setTtyrecFormat(Ttyrec.Encoding format) {
