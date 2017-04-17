@@ -68,10 +68,28 @@ public class MainFrame {
 
 		openSourceFromInputStreamable(iStream);
 
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
+		if ((currentSource.getTtyrec() == null)) {
+			System.out.println("\nUnknown error loading file.  Exiting.");
+			System.exit(2);
 		}
+
+		while (currentSource.backportDecodeProgress() < currentSource.getTtyrec().getFrameCount()) {
+			System.out.print(".");
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				System.out.println("\nInterrupted.  Exiting.");
+				System.exit(3);
+			}
+		}
+
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			System.out.println("\nInterrupted.  Exiting.");
+			System.exit(3);
+		}
+
 		System.out.println("done!");
 
 		System.out.print("Saving...");
