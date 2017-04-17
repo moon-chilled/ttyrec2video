@@ -13,6 +13,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.net.URISyntaxException;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -1132,7 +1133,7 @@ implements ClipboardOwner, TemporalProgress {
 				currentSource.getTtyrec().getFrameCount() > 0 &&
 				currentSource.backportDecodeProgress()
 				>= currentSource.getTtyrec().getFrameCount())
-			new SaveAsVideoDialog(this, currentSource.getTtyrec()).setVisible(true);
+			new SaveAsVideoDialog(currentSource.getTtyrec(), "/tmp/jettyplay_tmp.avi");
 		else
 			JOptionPane.showMessageDialog(fileMenu,
 					"Please wait for the ttyrec to finish loading first.",
