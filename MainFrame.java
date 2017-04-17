@@ -76,7 +76,7 @@ import javax.swing.event.ChangeListener;
  * The application's main frame.
  */
 @SuppressWarnings("serial")
-public class MainFrame extends JFrame {
+public class MainFrame {
 
 	/**
 	 * Creates a new main window for the Jettyplay application.
@@ -85,6 +85,7 @@ public class MainFrame extends JFrame {
 		initComponents();
 		// set no file to be open
 		currentSource = null;
+		openMenuItemActionPerformed();
 	}
 
 	/** This method is called from within the constructor to
@@ -96,6 +97,7 @@ public class MainFrame extends JFrame {
 			 * lost track of the form upon an upgrade to a new version. So now
 			 * it's being edited by hand.
 			 */
+			/*
 			uiBuilder = new UIBuilder(false);
 
 			mainPanel = uiBuilder.addJPanel(getContentPane(), null);
@@ -123,6 +125,7 @@ public class MainFrame extends JFrame {
 					});
 			setJMenuBar(menuBar);
 			uiBuilder.massSetEnabled(false);
+			*/
 		}
 
 	/**
@@ -177,13 +180,6 @@ public class MainFrame extends JFrame {
 	private void latin1EncodingMenuItemStateChanged(ChangeEvent evt) {
 		if (latin1EncodingMenuItem.isSelected())
 			setTtyrecFormat(Ttyrec.Encoding.Latin1);
-	}
-
-	private void fullScreenMenuItemStateChanged(ChangeEvent evt) {
-		GraphicsEnvironment.getLocalGraphicsEnvironment().
-			getDefaultScreenDevice().setFullScreenWindow(
-					fullScreenMenuItem.isSelected() ?
-					this : null);
 	}
 
 	private void toolBarMenuItemStateChanged(ChangeEvent evt) {
@@ -248,7 +244,6 @@ public class MainFrame extends JFrame {
 			ibmEncodingMenuItem.setEnabled(enabled);
 			latin1EncodingMenuItem.setEnabled(enabled);
 		}
-		uiBuilder.massSetEnabled(enabled);
 	}
 
 	private void unloadFile() {
@@ -441,10 +436,10 @@ public class MainFrame extends JFrame {
 			// if we can't set a system look and feel, just use the default...
 		}
 		MainFrame me = new MainFrame();
-		me.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		me.setSize(800, 600);
-		me.setTitle("Jettyplay");
-		me.setVisible(true);
+//		me.setDefaultCloseOperation(EXIT_ON_CLOSE);
+//		me.setSize(800, 600);
+//		me.setTitle("Jettyplay");
+//		me.setVisible(true);
 		// Apply the effects of options
 		ddflag = false;
 		boolean frameflag = false;
