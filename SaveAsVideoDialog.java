@@ -50,12 +50,10 @@ public class SaveAsVideoDialog {
 		final VideoCodec[] codecs = {
 			new ZMBVVideoCodec(1080, new Font(fontName,Font.PLAIN,11),
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
-					true)
-				/*            new RawVideoCodec(1080, new Font(fontName,Font.PLAIN,11),
-					      antialiasingCheckBox.isSelected()
-					      ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON
-					      : RenderingHints.VALUE_TEXT_ANTIALIAS_OFF,
-					      allowBoldCheckBox.isSelected())*/};
+					true),
+			new RawVideoCodec(1080, new Font(fontName,Font.PLAIN,11),
+					 RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
+					      true)};
 
 			encodingContainer = new AVIVideoContainer();
 
