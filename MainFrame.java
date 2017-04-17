@@ -111,120 +111,14 @@ public class MainFrame extends JFrame {
 			uiBuilder.addJMenuItem(fileMenu, 'o', "Open...", "control O", false,
 					new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
-					openMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJSeparator(fileMenu);
-			uiBuilder.addJMenuItem(fileMenu, 'v', "Save as Video...", null,
-					true, new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					saveAsVideoMenuItemActionPerformed(evt);
+					openMenuItemActionPerformed();
 					}
 					});
 			uiBuilder.addJSeparator(fileMenu);
 			uiBuilder.addJMenuItem(fileMenu, 'x', "Exit", "control X", false,
 					new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
-					exitMenuItemActionPerformed(evt);
-					}
-					});
-
-			JMenu editMenu = uiBuilder.addJMenu(menuBar, 'e', "Edit");
-			uiBuilder.addJMenuItem(editMenu, 'f', "Find...", "control F", true,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					findMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJSeparator(editMenu);
-			screenshotMenu = uiBuilder.addJMenu(editMenu, 'c',
-					"Copy Screenshot");
-			uiBuilder.addJMenuItem(screenshotMenu, 'p', "As Plain Text",
-					null, true, new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					plainTextScreenshotMenuItemActionPerformed(evt);
-					}
-					});
-			viewMenu = uiBuilder.addJMenu(menuBar, 'v', "View");
-			fullScreenMenuItem = uiBuilder.addJCheckBoxMenuItem(viewMenu, 'f',
-					"Full Screen", "F11", false, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					fullScreenMenuItemStateChanged(evt);
-					}
-					});
-			fullScreenMenuItem.setEnabled(
-					GraphicsEnvironment.getLocalGraphicsEnvironment()
-					.getDefaultScreenDevice().isFullScreenSupported());
-			toolBarMenuItem = uiBuilder.addJCheckBoxMenuItem(viewMenu, 't',
-					"Toolbar", null, false, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					toolBarMenuItemStateChanged(evt);
-					}
-					});
-			toolBarMenuItem.setSelected(true);
-			menuBarMenuItem = uiBuilder.addJCheckBoxMenuItem(viewMenu, 'm',
-					"Menu Bar", "control M", false, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					menuBarMenuItemStateChanged(evt);
-					}
-					});
-			uiBuilder.addJSeparator(viewMenu);
-			ButtonGroup terminalSizeGroup = new ButtonGroup();
-			JMenu terminalSizeMenu = uiBuilder.addJMenu(viewMenu, 'z', "Terminal Size");
-			autodetectTerminalSizeMenuItem = uiBuilder.addJRadioButtonMenuItem(
-					terminalSizeMenu, 'a', "Autodetect", null, true, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					autodetectTerminalSizeMenuItemActionPerformed(evt);
-					}
-					});
-			terminalSizeGroup.add(autodetectTerminalSizeMenuItem);
-			autodetectTerminalSizeMenuItem.setSelected(true);
-			fixedTerminalSizeMenuItem = uiBuilder.addJRadioButtonMenuItem(
-					terminalSizeMenu, 'f', "Fixed Size...", null, true,
-					new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {}
-					});
-			fixedTerminalSizeMenuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					fixedTerminalSizeMenuItemActionPerformed(evt);
-					}
-					});
-			encodingMenu = uiBuilder.addJMenu(viewMenu, 'e', "Encoding");
-			ButtonGroup encodingButtonGroup = new ButtonGroup();
-			autodetectEncodingMenuItem = uiBuilder.addJRadioButtonMenuItem(
-					encodingMenu, 'a', "Autodetect", null, true, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					autodetectEncodingMenuItemStateChanged(evt);
-					}
-					});
-			encodingButtonGroup.add(autodetectEncodingMenuItem);
-			autodetectEncodingMenuItem.setSelected(true);
-			unicodeEncodingMenuItem = uiBuilder.addJRadioButtonMenuItem(
-					encodingMenu, 'u', "Unicode (UTF-8)", null, true, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					unicodeEncodingMenuItemStateChanged(evt);
-					}
-					});
-			encodingButtonGroup.add(unicodeEncodingMenuItem);
-			ibmEncodingMenuItem = uiBuilder.addJRadioButtonMenuItem(
-					encodingMenu, 'i', "IBM (IBM850)", null, true, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					ibmEncodingMenuItemStateChanged(evt);
-					}
-					});
-			encodingButtonGroup.add(autodetectEncodingMenuItem);
-			latin1EncodingMenuItem = uiBuilder.addJRadioButtonMenuItem(
-					encodingMenu, 'l', "Latin-1 (ISO-8859-1)", null, true, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					latin1EncodingMenuItemStateChanged(evt);
-					}
-					});
-			JMenu goMenu = uiBuilder.addJMenu(menuBar, 'g', "Go");
-			uiBuilder.addJSeparator(goMenu);
-			autoskipMenuItem =uiBuilder.addJCheckBoxMenuItem(goMenu,
-					'k', "Skip Inactivity", "L", false, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					autoskipMenuItemStateChanged(evt);
+					exitMenuItemActionPerformed();
 					}
 					});
 			setJMenuBar(menuBar);
@@ -236,7 +130,7 @@ public class MainFrame extends JFrame {
 	 * a ttyrec file.
 	 * @param evt Information on which event was performed
 	 */
-	private void openMenuItemActionPerformed(ActionEvent evt) {
+	private void openMenuItemActionPerformed() {
 		InputStreamable iStream = null;
 
 		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
@@ -258,6 +152,8 @@ public class MainFrame extends JFrame {
 		if (iStream == null) return;
 
 		openSourceFromInputStreamable(iStream);
+
+		new SaveAsVideoDialog(currentSource.getTtyrec(), "/tmp/jettyplay_tmp.avi");
 	}
 
 	private void autoskipButtonStateChanged(ChangeEvent evt) {
@@ -313,76 +209,13 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	private void findMenuItemActionPerformed(ActionEvent evt) {
-		if (findBox == null)
-			findBox = new FindDialog(this,this);
-		findBox.setVisible(true);
-		findBox.fixDefaultFocus();
-		findBox.requestFocusInWindow();
-	}
-
-	private void plainTextScreenshotMenuItemActionPerformed(ActionEvent evt) {
-		VDUBuffer vdub = null;
-		if (getCurrentTtyrec() != null) vdub = getCurrentFrame().getTerminalState();
-		if (vdub == null) vdub = new vt320();
-		StringBuilder sb = new StringBuilder();
-		for (char[] s: vdub.charArray) {
-			sb.append(s);
-			sb.append('\n');
-		}
-	}
-
-	private void exitMenuItemActionPerformed(ActionEvent evt) {
+	private void exitMenuItemActionPerformed() {
 		System.exit(0);
 	}
 
 	private void autodetectEncodingMenuItemStateChanged(ChangeEvent evt) {
 		if (autodetectEncodingMenuItem.isSelected() && getCurrentTtyrec() != null)
 			getCurrentTtyrec().resetEncoding();
-	}
-
-	private void saveAsVideoMenuItemActionPerformed(ActionEvent evt) {
-		/* We don't check to see if analyze process is maxed out, because in
-		 * the case of streaming ttyrecs, there's no way to tell.
-		 */
-		if (currentSource.getTtyrec() != null &&
-				currentSource.getTtyrec().getFrameCount() > 0 &&
-				currentSource.backportDecodeProgress()
-				>= currentSource.getTtyrec().getFrameCount())
-			new SaveAsVideoDialog(currentSource.getTtyrec(), "/tmp/jettyplay_tmp.avi");
-		else
-			JOptionPane.showMessageDialog(fileMenu,
-					"Please wait for the ttyrec to finish loading first.",
-					"Cannot Save as Video", JOptionPane.ERROR_MESSAGE);
-	}
-
-	private void autodetectTerminalSizeMenuItemActionPerformed(ChangeEvent evt) {
-		if (autodetectTerminalSizeMenuItem.isSelected() && getCurrentTtyrec() != null) {
-			getCurrentTtyrec().setForcedSize(-1,-1);
-			autodetectTerminalSizeMenuItem.setSelected(true);
-			fixedTerminalSizeMenuItem.setSelected(false);
-			getCurrentSource().repeatCurrentDecodeWorker();
-		}
-	}
-
-	private void fixedTerminalSizeMenuItemActionPerformed(ActionEvent evt) {
-		if (fixedTerminalSizeMenuItem.isSelected()) {
-			String s = JOptionPane.showInputDialog(viewMenu,
-					"Fix terminal window at what size (WxH)?", "80x24");
-			if (s == null) return;
-			setForcedSizeFromString(s);
-		}
-	}
-
-	private void setForcedSizeFromString(String s) {
-		Matcher m = Pattern.compile("\\s*(\\d+)\\s*x\\s*(\\d+)\\s*").
-			matcher(s);
-		if (!m.matches()) return;
-		getCurrentTtyrec().setForcedSize(
-				Integer.valueOf(m.group(1)), Integer.valueOf(m.group(2)));
-		autodetectTerminalSizeMenuItem.setSelected(false);
-		fixedTerminalSizeMenuItem.setSelected(true);
-		getCurrentSource().repeatCurrentDecodeWorker();
 	}
 
 	private void setTtyrecFormat(Ttyrec.Encoding format) {
@@ -431,18 +264,9 @@ public class MainFrame extends JFrame {
 		currentSource = new InputStreamTtyrecSource(iStream);
 		getCurrentSource().completeUnpause();
 		getCurrentSource().addDecodeListener(new ProgressListener() {
-				public void progressMade() {
-				}
-				});
-		getCurrentSource().addAnalysisListener(new ProgressListener() {
-				public void progressMade() {
-				analysisProgressMade();
-				}
-				});
-		getCurrentSource().addReadListener(new ProgressListener() {
-				public void progressMade() {
-				}
-				});
+			public void progressMade() {
+			}
+		});
 		getCurrentSource().start();
 		massSetEnabled(true);
 		previousFrameIndex = 0;
@@ -484,60 +308,12 @@ public class MainFrame extends JFrame {
 	private boolean canUpdateTimeStartedAt = true;
 	private boolean canUpdateSelectedFrame = true;
 
-	private FindDialog findBox;
-
 	private File lastDirectory = null;
 
 	public double getMaximumTime() {
 		if (getCurrentTtyrec() == null) return 0.0;
 		return getCurrentTtyrec().getLength();
 	}
-	public double getCurrentTime() {
-		if (getCurrentTtyrec() == null) return 0.0;
-		if (getCurrentSource().backportDecodeProgress() ==
-				getCurrentTtyrec().getFrameCount())
-			return getCurrentTtyrec().getLength();
-		if (getCurrentSource().backportDecodeProgress() == 0) return 0.0;
-		return getCurrentTtyrec().getFrameAtIndex(getCurrentSource().backportDecodeProgress()-1).getRelativeTimestamp();
-	}
-	public double getFuzzyTime() {
-		if (getCurrentTtyrec() == null) return 0.0;
-		if (getCurrentSource().decodeProgress() == getCurrentTtyrec().getFrameCount())
-			return getCurrentTtyrec().getLength();
-		if (getCurrentSource().decodeProgress() == 0) return 0.0;
-		return getCurrentTtyrec().getFrameAtIndex(getCurrentSource().decodeProgress()-1).getRelativeTimestamp();
-	}
-
-	/**
-	 * A listener that should be called whenever progress has been made in
-	 * analysing a currently open ttyrec.
-	 */
-	public void analysisProgressMade() {
-		// Synch the selected encoding from the ttyrec...
-		if (getCurrentTtyrec().getEncoding() == Ttyrec.Encoding.Autodetect)
-			autodetectEncodingMenuItem.setSelected(true);
-		if (getCurrentTtyrec().getEncoding() == Ttyrec.Encoding.IBM)
-			ibmEncodingMenuItem.setSelected(true);
-		if (getCurrentTtyrec().getEncoding() == Ttyrec.Encoding.Latin1)
-			latin1EncodingMenuItem.setSelected(true);
-		if (getCurrentTtyrec().getEncoding() == Ttyrec.Encoding.UTF8)
-			unicodeEncodingMenuItem.setSelected(true);
-		// /before/ setting which item is enabled, or we'll end up copying
-		// the old value over the new one rather than vice versa.
-		ibmEncodingMenuItem.setEnabled
-			(getCurrentTtyrec().isEncodingPossible(Ttyrec.Encoding.IBM));
-		unicodeEncodingMenuItem.setEnabled
-			(getCurrentTtyrec().isEncodingPossible(Ttyrec.Encoding.UTF8));
-		latin1EncodingMenuItem.setEnabled
-			(getCurrentTtyrec().isEncodingPossible(Ttyrec.Encoding.Latin1));
-		// if we just decoded the wanted frame, jump to it
-		if (getCurrentTtyrec().getWantedFrame() > -1 &&
-				getCurrentTtyrec().getFrameCount() >
-				getCurrentTtyrec().getWantedFrame()) {
-			getCurrentTtyrec().setWantedFrame(-1);
-		}
-	}
-
 	private TtyrecFrame getCurrentFrame() {
 		try {
 			return getCurrentTtyrec().getFrameAtIndex(previousFrameIndex);
@@ -671,15 +447,12 @@ public class MainFrame extends JFrame {
 		me.setVisible(true);
 		// Apply the effects of options
 		ddflag = false;
-		boolean sizeflag = false;
 		boolean frameflag = false;
-		String pendingSize = null;
 		String pendingFrame = null;
 		for (String a : args) {
 			// if size or frame is being set this arg, turn on ddflag so the
 			// arg isn't interpreted as anything else, and fall past the
 			// filename check to the size/frame check
-			if (sizeflag) {pendingSize = a; ddflag = true;}
 			if (frameflag) {pendingFrame = a; ddflag = true;}
 			if (a.equals("-l") && !ddflag) {
 				me.autoskipButton.setSelected(true);
@@ -687,21 +460,15 @@ public class MainFrame extends JFrame {
 				continue;
 			}
 			if(a.equals("-f") && !ddflag) {frameflag = true; continue;}
-			if(a.equals("-z") && !ddflag) {sizeflag = true; continue;}
 			if(a.equals("--") && !ddflag) {ddflag = true; continue;}            
 			ddflag = false;
-			if (!sizeflag && !frameflag) {
+			if (!frameflag) {
 				// Looks like it's a filename...
 				File f = new File(a);
 				me.openSourceFromInputStreamable(new InputStreamableFileWrapper(f));
 			}
 			// Check to see whether to apply forced size, or to go to a frame.
-			sizeflag = false;
 			frameflag = false;
-			if (me.getCurrentSource() != null && pendingSize != null) {
-				me.setForcedSizeFromString(pendingSize);
-				pendingSize = null;
-			}
 			if (me.getCurrentSource() != null && pendingFrame != null) {
 				try {
 					me.getCurrentSource().setWantedFrame(
