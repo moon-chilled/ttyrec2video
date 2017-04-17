@@ -17,6 +17,8 @@ import java.net.URISyntaxException;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -566,154 +568,25 @@ implements ClipboardOwner, TemporalProgress {
 	 */
 	private void openMenuItemActionPerformed(ActionEvent evt) {
 		InputStreamable iStream = null;
-		try {
-			File f = null;
-			JFileChooser fileChooser = new JFileChooser(lastDirectory);
-			fileChooser.setAcceptAllFileFilterUsed(false);
-			fileChooser.addChoosableFileFilter(new FileFilter() {
-					/**
-					 * Checks the extension on a file to see if it is a ttyrec
-					 * file.
-					 * @return true if the file has an acceptable extension,
-					 *         or is a directory
-					 */
-					@Override
-					public boolean accept(File f) {
-					return f.getName().toLowerCase().endsWith(".rec") ||
-					f.getName().toLowerCase().endsWith(".ttyrec") ||
-					f.getName().toLowerCase().endsWith(".ttyrec2") ||
-					f.getName().toLowerCase().endsWith(".rec.gz") ||
-					f.getName().toLowerCase().endsWith(".ttyrec.gz") ||
-					f.getName().toLowerCase().endsWith(".ttyrec2.gz") ||
-					f.getName().toLowerCase().endsWith(".rec.bz2") ||
-					f.getName().toLowerCase().endsWith(".ttyrec.bz2") ||
-					f.getName().toLowerCase().endsWith(".ttyrec2.bz2") ||
-					f.isDirectory();
-					}
-					/**
-					 * @return The description of this file filter.
-					 */
-					@Override
-						public String getDescription() {
-							return "All supported file extensions";
-						}
-			});
-			fileChooser.addChoosableFileFilter(new FileFilter() {
-					/**
-					 * Checks the extension on a file to see if it is a ttyrec
-					 * file.
-					 * @return true if the file has an acceptable extension,
-					 *         or is a directory
-					 */
-					@Override
-					public boolean accept(File f) {
-					return f.getName().toLowerCase().endsWith(".rec") ||
-					f.getName().toLowerCase().endsWith(".ttyrec") ||
-					f.isDirectory();
-					}
-					/**
-					 * @return The description of this file filter.
-					 */
-					@Override
-					public String getDescription() {
-					return "Ttyrec files (*.rec, *.ttyrec)";
-					}
-					});
-			fileChooser.addChoosableFileFilter(new FileFilter() {
-					/**
-					 * Checks the extension on a file to see if it is a ttyrec
-					 * file.
-					 * @return true if the file has an acceptable extension,
-					 *         or is a directory
-					 */
-					@Override
-					public boolean accept(File f) {
-					return f.getName().toLowerCase().endsWith(".ttyrec2") ||
-					f.isDirectory();
-					}
-					/**
-					 * @return The description of this file filter.
-					 */
-					@Override
-					public String getDescription() {
-					return "Annotated ttyrec files (*.ttyrec2)";
-					}
-					});
-			fileChooser.addChoosableFileFilter(new FileFilter() {
-					/**
-					 * Checks the extension on a file to see if it is a ttyrec
-					 * file.
-					 * @return true if the file has an acceptable extension,
-					 *         or is a directory
-					 */
-					@Override
-					public boolean accept(File f) {
-					return f.getName().toLowerCase().endsWith(".ttyrec.gz") ||
-					f.getName().toLowerCase().endsWith(".ttyrec.bz2") ||
-					f.getName().toLowerCase().endsWith(".rec.gz") ||
-					f.getName().toLowerCase().endsWith(".rec.bz2") ||
-					f.isDirectory();
-					}
-					/**
-					 * @return The description of this file filter.
-					 */
-					@Override
-					public String getDescription() {
-					return "Compressed ttyrec files (*.{ttyrec,rec}.{gz,bz2})";
-					}
-			});
-			fileChooser.addChoosableFileFilter(new FileFilter() {
-					/**
-					 * Checks the extension on a file to see if it is a ttyrec
-					 * file.
-					 * @return true if the file has an acceptable extension,
-					 *         or is a directory
-					 */
-					@Override
-					public boolean accept(File f) {
-					return f.getName().toLowerCase().endsWith(".ttyrec2.gz") ||
-					f.getName().toLowerCase().endsWith(".ttyrec2.bz2") ||
-					f.isDirectory();
-					}
-					/**
-					 * @return The description of this file filter.
-					 */
-					@Override
-					public String getDescription() {
-					return "Compressed annotated ttyrec files (*.ttyrec2.{gz,bz2})";
-					}
-					});
-			fileChooser.addChoosableFileFilter(fileChooser.getAcceptAllFileFilter());
 
-			if (fileChooser.showOpenDialog(mainPanel) != JFileChooser.APPROVE_OPTION) {
-				return;
-			}
-			f = fileChooser.getSelectedFile();
-			iStream = new InputStreamableFileWrapper(f);
-			lastDirectory = f.getParentFile();
-		} catch (java.security.AccessControlException ex) {
+		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+
+		boolean gotstring = false;
+		String s = "";
+		while (!gotstring) {
 			try {
-				// Try using a JNLP service to open a file. This is done using
-				// reflection so it works even without a JNLP library present.
-
-				// FileOpenService fos = (FileOpenService) ServiceManager.lookup("javax.jnlp.FileOpenService");
-				Object fos = getClass().getClassLoader().loadClass("javax.jnlp.ServiceManager").
-					getMethod("lookup", String.class).invoke(null, "javax.jnlp.FileOpenService");
-				// FileContents fc = fos.openFileDialog("", new String[]{"rec","ttyrec"});
-				Object fc = getClass().getClassLoader().loadClass("javax.jnlp.FileOpenService").
-					getMethod("openFileDialog", String.class, String[].class).
-					invoke(fos, "", new String[]{
-							"rec","ttyrec","ttyrec2","rec.gz","ttyrec.gz","rec.bz2","ttyrec.bz2"});
-				if (fc == null) return;
-				iStream = new InputStreamableFileContentsWrapper(fc);
-				if (iStream == null) throw new IOException();
-			} catch (ClassNotFoundException | NoSuchMethodException |
-					SecurityException | IllegalAccessException |
-					IllegalArgumentException | InvocationTargetException | IOException ex1) {
-				return;
+				s = stdin.readLine();
+				gotstring = true;
+			} catch (IOException e) {
 			}
 		}
+
+
+		File f = new File(s);
+		iStream = new InputStreamableFileWrapper(f);
+
 		if (iStream == null) return;
+
 		openSourceFromInputStreamable(iStream);
 	}
 
