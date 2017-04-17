@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package jettyplay;
+package ttyrec2avi;
 
 /**
  * A conversion routine that's given a sequence of frame times in a ttyrec,

@@ -1,1 +1,1 @@
-Main-Class: jettyplay.MainFrame
+Main-Class: ttyrec2avi.MainFrame

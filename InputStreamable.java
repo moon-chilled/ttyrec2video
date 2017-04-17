@@ -1,4 +1,4 @@
-package jettyplay;
+package ttyrec2avi;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;

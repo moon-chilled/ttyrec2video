@@ -8,7 +8,7 @@
  *
  * Created on 17-Dec-2012, 05:21:28
  */
-package jettyplay;
+package ttyrec2avi;
 
 import java.awt.RenderingHints;
 import java.awt.Font;

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 import java.awt.Color;
 import java.awt.Dimension;

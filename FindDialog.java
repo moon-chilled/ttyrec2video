@@ -4,7 +4,7 @@
  * Created on 07-Feb-2010, 22:36:29
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 /**
  *

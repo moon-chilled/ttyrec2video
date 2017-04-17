@@ -1,8 +1,7 @@
 /*
- * MainFrame.java
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -125,17 +124,6 @@ implements ClipboardOwner, TemporalProgress {
 			mainToolbar = uiBuilder.addJToolBar(mainToolbarPanel, BorderLayout.NORTH);
 
 			uiBuilder.addJSeparator(mainToolbar);
-
-			/* We do this one by hand, because it's a little complex and because
-			   there's no code reuse benefit from uiBuilder. */
-
-			autoskipButton = uiBuilder.addJToggleButton(mainToolbar,
-					"Automatically skip past long periods of inactivity",
-					"autoskip.png", false, new ChangeListener() {
-					public void stateChanged(ChangeEvent evt) {
-					autoskipButtonStateChanged(evt);
-					}
-					});
 
 			sidebarToolbarPanel = uiBuilder.addJPanel(mainToolbarPanel,
 					BorderLayout.CENTER);

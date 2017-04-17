@@ -1,4 +1,4 @@
-package jettyplay;
+package ttyrec2avi;
 
 import java.util.AbstractList;
 import java.util.ArrayList;

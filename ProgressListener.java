@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 /**
  * An interface that specifies that an implementing class can be

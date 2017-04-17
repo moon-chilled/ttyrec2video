@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 /**
  * An interface for things that can give two progress values as time

@@ -24,7 +24,7 @@
  *
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 import java.nio.CharBuffer;
 import java.util.Arrays;

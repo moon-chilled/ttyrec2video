@@ -2,7 +2,7 @@
  * AboutDialog.java
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;

@@ -24,7 +24,7 @@
  *
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 /**
  * Implementation of a VT terminal emulation plus ANSI compatible.

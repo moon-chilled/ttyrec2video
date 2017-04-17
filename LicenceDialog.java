@@ -9,7 +9,7 @@
  * Created on 06-Feb-2010, 18:26:47
  */
 
-package jettyplay;
+package ttyrec2avi;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -18,7 +18,7 @@
    not, however, preclude using a copy of this library under the LGPL in
    another context.
  */
-package jettyplay;
+package ttyrec2avi;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
