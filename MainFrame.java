@@ -87,18 +87,6 @@ public class MainFrame extends JFrame {
 		currentSource = null;
 	}
 
-	/**
-	 * Shows the About... dialog box.
-	 */
-	public void showAboutBox() {
-		if (aboutBox == null) {
-			JFrame mainFrame = this;
-			aboutBox = new AboutDialog(mainFrame);
-			aboutBox.setLocationRelativeTo(mainFrame);
-		}
-		aboutBox.setVisible(true);
-	}
-
 	/** This method is called from within the constructor to
 	 * initialize the form.
 	 */
@@ -239,20 +227,6 @@ public class MainFrame extends JFrame {
 					autoskipMenuItemStateChanged(evt);
 					}
 					});
-			JMenu helpMenu = uiBuilder.addJMenu(menuBar, 'h', "Help");
-			uiBuilder.addJMenuItem(helpMenu, 'a', "About...", null, false,
-					new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					aboutMenuItemActionPerformed(evt);
-					}
-					});
-			uiBuilder.addJMenuItem(helpMenu, 'l', "License information...", null,
-					false, new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-					licenceMenuItemActionPerformed(evt);
-					}
-					});
-
 			setJMenuBar(menuBar);
 			uiBuilder.massSetEnabled(false);
 		}
@@ -284,10 +258,6 @@ public class MainFrame extends JFrame {
 		if (iStream == null) return;
 
 		openSourceFromInputStreamable(iStream);
-	}
-
-	private void licenceMenuItemActionPerformed(ActionEvent evt) {
-		new LicenceDialog(this).setVisible(true);
 	}
 
 	private void autoskipButtonStateChanged(ChangeEvent evt) {
@@ -360,10 +330,6 @@ public class MainFrame extends JFrame {
 			sb.append(s);
 			sb.append('\n');
 		}
-	}
-
-	private void aboutMenuItemActionPerformed(ActionEvent evt) {
-		new AboutDialog(this).setVisible(true);
 	}
 
 	private void exitMenuItemActionPerformed(ActionEvent evt) {
@@ -518,7 +484,6 @@ public class MainFrame extends JFrame {
 	private boolean canUpdateTimeStartedAt = true;
 	private boolean canUpdateSelectedFrame = true;
 
-	private JDialog aboutBox;
 	private FindDialog findBox;
 
 	private File lastDirectory = null;
@@ -678,9 +643,6 @@ public class MainFrame extends JFrame {
 		for(String a : args) {
 			if (ddflag) {ddflag = false; continue;}
 			if(a.equals("-v") || a.equals("--version")) {
-				System.err.println("This is jettyplay version "+
-						AboutDialog.versionInfo+".");
-				System.err.println(AboutDialog.copyrightInfo);
 				System.exit(0);
 			}
 			if(a.equals("-h") || a.equals("--help")) {
