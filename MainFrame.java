@@ -73,6 +73,13 @@ public class MainFrame {
 			System.exit(2);
 		}
 
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			System.out.println("\nInterrupted.  Exiting.");
+			System.exit(3);
+		}
+
 		while (currentSource.backportDecodeProgress() < currentSource.getTtyrec().getFrameCount()) {
 			System.out.print(".");
 			try {
@@ -81,13 +88,6 @@ public class MainFrame {
 				System.out.println("\nInterrupted.  Exiting.");
 				System.exit(3);
 			}
-		}
-
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			System.out.println("\nInterrupted.  Exiting.");
-			System.exit(3);
 		}
 
 		System.out.println("done!");
