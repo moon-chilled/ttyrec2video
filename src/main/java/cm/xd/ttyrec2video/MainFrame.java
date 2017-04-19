@@ -97,10 +97,7 @@ public class MainFrame {
 		unloadFile();
 		currentSource = new InputStreamTtyrecSource(iStream);
 		getCurrentSource().completeUnpause();
-		getCurrentSource().addDecodeListener(new ProgressListener() {
-			public void progressMade() {
-			}
-		});
+		getCurrentSource().addDecodeListener(() -> {});
 		getCurrentSource().start();
 		previousFrameIndex = 0;
 	}

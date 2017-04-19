@@ -131,7 +131,7 @@ public class ByteChunkList extends AbstractList<Byte> {
 				ArrayList arrayList = (ArrayList) array;
 				return (Byte)arrayList.get(indexInChunk);
 			}
-			throw new IndexOutOfBoundsException("Could not find which part of the list to index");
+			throw new IndexOutOfBoundsException(COULD_NOT_INDEX_LIST);
 		}
 	/**
 	 * Returns the date of bytes in this list at the given index.
@@ -193,7 +193,7 @@ public class ByteChunkList extends AbstractList<Byte> {
 					cumulativeSizeList.set(i, cumulativeSizeList.get(i)+1);
 				return;
 			}
-			throw new IndexOutOfBoundsException("Could not find which part of the list to index");
+			throw new IndexOutOfBoundsException(COULD_NOT_INDEX_LIST);
 		}
 
 	/**
@@ -230,7 +230,7 @@ public class ByteChunkList extends AbstractList<Byte> {
 					cumulativeSizeList.set(i, cumulativeSizeList.get(i)-1);
 				return b;
 			}
-			throw new IndexOutOfBoundsException("Could not find which part of the list to index");
+			throw new IndexOutOfBoundsException(COULD_NOT_INDEX_LIST);
 		}
 
 	/**
