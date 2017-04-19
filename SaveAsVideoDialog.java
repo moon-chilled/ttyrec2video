@@ -17,10 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.CancellationException;
-//import javax.swing.JDialog;
-//import javax.swing.JFileChooser;
-//import javax.swing.JOptionPane;
-//import javax.swing.SwingUtilities;
 
 /**
  *
@@ -37,21 +33,21 @@ public class SaveAsVideoDialog {
 	 * @param parent The MainFrame that created this dialog box.
 	 * @param ttyrec The ttyrec to save as a video. 
 	 */
-	public SaveAsVideoDialog(/*MainFrame parent, */Ttyrec ttyrec, String outfilename) {
+	public SaveAsVideoDialog(Ttyrec ttyrec, String outfilename, int size) {
 		this.ttyrec = ttyrec;
 		this.outfilename = outfilename;
 		this.encodingContainer = null;
-		doshit();
+		doshit(size);
 	}
 
-	private void doshit() {
+	private void doshit(int size) {
 		String fontName = "DejaVu Sans Mono";
 
 		final VideoCodec[] codecs = {
-			new ZMBVVideoCodec(720, new Font(fontName,Font.PLAIN,11),
+			new ZMBVVideoCodec(size, new Font(fontName,Font.PLAIN,11),
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
 					true),
-			new RawVideoCodec(720, new Font(fontName,Font.PLAIN,11),
+			new RawVideoCodec(size, new Font(fontName,Font.PLAIN,11),
 					 RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
 					      true)};
 
@@ -133,20 +129,5 @@ public class SaveAsVideoDialog {
 		      };*/
 		//	videoEncodeThread.run();
 		//        new Thread(videoEncodeThread).start();
-	}//GEN-LAST:event_okButtonActionPerformed
-
-	// Variables declaration - do not modify//GEN-BEGIN:variables
-	private javax.swing.JCheckBox allowBoldCheckBox;
-	private javax.swing.JCheckBox antialiasingCheckBox;
-	private javax.swing.JComboBox codecComboBox;
-	private javax.swing.JComboBox containerComboBox;
-	private javax.swing.JRadioButton fixedSpeedButton;
-	private javax.swing.JSpinner fixedSpeedSpinner;
-	private javax.swing.JRadioButton linearSpeedButton;
-	private javax.swing.JRadioButton logSpeedButton;
-	private javax.swing.JButton okButton;
-	private javax.swing.JProgressBar progressBar;
-	private javax.swing.JComboBox sizeComboBox;
-	private javax.swing.ButtonGroup speedButtonGroup;
-	// End of variables declaration//GEN-END:variables
+	}
 }

@@ -51,10 +51,14 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 @SuppressWarnings("serial")
 public class MainFrame {
 
+	public MainFrame(String in, String out) {
+		this(in, out, 1080);
+	}
+
 	/**
 	 * Creates a new main window for the Jettyplay application.
 	 */
-	public MainFrame(String in, String out) {
+	public MainFrame(String in, String out, int size) {
 		System.out.print("Loading...");
 		// set no file to be open
 		currentSource = null;
@@ -94,7 +98,7 @@ public class MainFrame {
 
 		System.out.print("Saving...");
 
-		new SaveAsVideoDialog(currentSource.getTtyrec(), out);
+		new SaveAsVideoDialog(currentSource.getTtyrec(), out, size);
 		System.out.println("done!");
 		System.exit(0);
 	}
@@ -257,15 +261,57 @@ public class MainFrame {
 	 * @param args The command-line arguments to parse.
 	 */
 	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("Usage: java [-server] -jar <filename.jar> <infile.ttyrec> <outfile.avi>");
+		if ((args.length != 2) && (args.length != 4)) {
+			System.out.println("Usage: java [-server] -jar [-h height] <filename.jar> <infile.ttyrec> <outfile.avi>");
 			System.exit(1);
 		}
-		MainFrame me = new MainFrame(args[0], args[1]);
-//		me.setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		me.setSize(800, 600);
-//		me.setTitle("Jettyplay");
-//		me.setVisible(true);
-		// Apply the effects of options
+
+		boolean setheight = false;
+		String in = null, out = null;
+		int height = -1;
+
+		if (args.length == 2) {
+			new MainFrame(args[0], args[1]);
+		} else {
+			for (String s: args) {
+				if (setheight) {
+					try {
+						height = Integer.parseInt(s);
+					} catch (NumberFormatException e) {
+						System.out.println("Height must be a number.");
+						System.exit(1);
+					}
+					setheight = false;
+					continue;
+				}
+
+				if (s.equals("-h")) {
+					if (height != -1) {
+						System.out.println("Height can only be set once.");
+						System.exit(1);
+					} else {
+						setheight = true;
+						continue;
+					}
+				}
+
+				// Definitely a file
+				if (in == null) {
+					in = s;
+				} else if (out == null) {
+					out = s;
+				} else {
+					System.out.println("Too many files!");
+					System.exit(1);
+				}
+			}
+
+			if ((in == null) || (out == null)) {
+				System.out.println("Not enough files!");
+				System.exit(1);
+			}
+
+			new MainFrame(in, out, height);
+		}
 	}
 }

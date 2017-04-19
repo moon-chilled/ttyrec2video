@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.concurrent.CancellationException;
-import javax.swing.SwingUtilities;
 
 /**
  * An interface describing a file format used to contain raw video.
