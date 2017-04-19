@@ -38,6 +38,8 @@ import java.util.Arrays;
  */
 public class MicroBunzip {
 
+	private MicroBunzip() {}
+
 	/* Constants for huffman coding */
 	public static final int MAX_GROUPS = 6;
 	public static final int GROUP_SIZE = 50;       /* 64 would have been more efficient */
@@ -61,7 +63,7 @@ public class MicroBunzip {
 
 	/* Other housekeeping constants */
 	public static final int IOBUF_SIZE = 4096;
-	public static final String bunzip_errors[] = new String[]{
+	protected static final String bunzip_errors[] = new String[]{
 		null, "Bad file checksum", "Not bzip data",
 			"Unexpected input EOF", "Unexpected output EOF", "Data error",
 			"Out of memory", "Obsolete (pre 0.9.5) bzip format not supported."};
@@ -108,7 +110,7 @@ public class MicroBunzip {
 	/* The java translation of C setjmp/longjmp */
 	private static class IntegerException extends Exception {
 
-		int i;
+		final int i;
 
 		IntegerException(int j) {
 			super("Integer thrown: " + j);

@@ -12,6 +12,7 @@ import java.util.Date;
  * @author ais523
  */
 public class ByteChunkList extends AbstractList<Byte> {
+	public static final String COULD_NOT_INDEX_LIST = "Could not find which part of the list to index";
 	ArrayList<Object> backingList; // holds chunks of byte[], Byte[], ArrayList<Byte>
 	ArrayList<Integer> cumulativeSizeList;
 	ArrayList<Date> chunkTimeList;
@@ -84,7 +85,7 @@ public class ByteChunkList extends AbstractList<Byte> {
 					storeIn[i+off] = (Byte)arrayList.get(i+indexInChunk);
 				return l;
 			}
-			throw new IndexOutOfBoundsException("Could not find which part of the list to index");
+			throw new IndexOutOfBoundsException(COULD_NOT_INDEX_LIST);
 		}
 
 	/**
@@ -230,18 +231,6 @@ public class ByteChunkList extends AbstractList<Byte> {
 				return b;
 			}
 			throw new IndexOutOfBoundsException("Could not find which part of the list to index");
-		}
-	/**
-	 * Changes the value of the element at a given location. Currently
-	 * unimplemented.
-	 * @param index Unused.
-	 * @param element Unused.
-	 * @return Never returns.
-	 * @throws UnsupportedOperationException always.
-	 */
-	@Override
-		public synchronized Byte set(int index, Byte element) {
-			return super.set(index, element);
 		}
 
 	/**

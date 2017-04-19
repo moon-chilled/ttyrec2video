@@ -58,7 +58,7 @@ public class TtyrecAnalyzer extends TtyrecWorker {
 	private InputStream outerInputStream;
 	private InputStream innerInputStream;
 
-	private final boolean formatDebug = false;
+	private final static boolean formatDebug = false;
 
 	TtyrecAnalyzer(TtyrecSource source, int seq, InputFormat format) {
 		super(source, seq, "Ttyrec Analyzer");
@@ -174,7 +174,7 @@ public class TtyrecAnalyzer extends TtyrecWorker {
 					return;
 				} catch (IOException e) {
 					if (formatDebug) System.out.println(e.getMessage());
-					if (e.getMessage().equals("Interrupted")) {
+					if ("Interrupted".equals(e.getMessage())) {
 						throw new InterruptedException();
 					}
 					throw new TtyrecException("Failed to read compressed stream");

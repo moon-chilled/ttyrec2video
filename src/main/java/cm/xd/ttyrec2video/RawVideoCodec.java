@@ -83,8 +83,7 @@ class RawVideoCodec extends AbstractVideoCodec {
 
 	@Override
 		protected int[] getPixelOrder() {
-			int[] pixelOrder = {2, 1, 0}; /* BGRX */
-			return pixelOrder;
+		return new int[]{2, 1, 0}; /* BGRX */
 		}
 
 	@Override

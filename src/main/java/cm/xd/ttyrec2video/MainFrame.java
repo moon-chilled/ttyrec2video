@@ -88,7 +88,6 @@ public class MainFrame {
 	}
 
 	private void unloadFile() {
-		playing = false;
 		if (getCurrentSource() != null) getCurrentSource().completeCancel();
 		currentSource = null;
 		VDUBuffer.resetCaches();
@@ -108,17 +107,7 @@ public class MainFrame {
 
 	private TtyrecSource currentSource;
 
-	// TODO: Reduce this in the case of excessively time-long ttyrecs,
-	// to avoid an integer overflow
-	private int timeScaling = 1000;
-	private boolean playing = false;
 	private int previousFrameIndex = -1;
-	private long timeStartedAt;
-	private int sliderValueStartedAt;
-	private boolean canUpdateTimeStartedAt = true;
-	private boolean canUpdateSelectedFrame = true;
-
-	private File lastDirectory = null;
 
 	public double getMaximumTime() {
 		if (getCurrentTtyrec() == null) return 0.0;
@@ -248,7 +237,7 @@ public class MainFrame {
 					continue;
 				}
 
-				if (s.equals("-h")) {
+				if ("-h".equals(s)) {
 					if (height != -1) {
 						System.out.println("Height can only be set once.");
 						System.exit(1);

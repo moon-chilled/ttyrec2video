@@ -228,8 +228,7 @@ public class ZMBVVideoCodec extends AbstractVideoCodec {
 
 	@Override
 		protected int[] getPixelOrder() {
-			int[] pixelOrder = {2, 1, 0, 3}; /* BGRA */
-			return pixelOrder;
+		return new int[]{2, 1, 0, 3};  /* BGRA */
 		}
 
 	@Override

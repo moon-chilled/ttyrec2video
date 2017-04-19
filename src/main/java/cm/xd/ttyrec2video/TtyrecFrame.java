@@ -97,12 +97,6 @@ public class TtyrecFrame {
 		//System.out.println("Frames created: " + ++created);
 	}
 
-	@Override
-		protected void finalize() throws Throwable {
-			super.finalize();
-			//System.out.println("Frames destroyed: " + ++destroyed);
-		}
-
 	/**
 	 * Returns the timestamp of this frame, relative to the first frame in the
 	 * same ttyrec.
@@ -299,9 +293,8 @@ public class TtyrecFrame {
 	 * @return the data
 	 */
 	private String getRawData() {
-		String latin1Data = Charset.forName("ISO-8859-1").
+		return Charset.forName("ISO-8859-1").
 			decode(ByteBuffer.wrap(frameData)).toString();
-		return latin1Data;
 	}
 
 	/**
@@ -374,26 +367,22 @@ public class TtyrecFrame {
 	 * @return A lazy list of raw data from frames with the given stream.
 	 */
 	public Iterable<AttributedString> getRawDataIterator(final double relativeTime, final int stream) {
-		return new Iterable<AttributedString>() {
-			public Iterator<AttributedString> iterator() {
-				return new Iterator<AttributedString>() {
-					int lastSeqNumber = seqNumber;
-					public boolean hasNext() {
-						return hasNextAnnotation(
-								relativeTime, lastSeqNumber, stream);
-					}
-					public AttributedString next() {
-						AttributedStringAndNumber asan = nextAnnotation(
-								relativeTime, lastSeqNumber, stream);
-						lastSeqNumber = asan.getN();
-						return asan.getA();
-					}
-					public void remove() {
-						throw new UnsupportedOperationException(
-								"Attempt to modify an immutable list");
-					}
-				};
-			}
-		};
+		return () -> new Iterator<AttributedString>() {
+            int lastSeqNumber = seqNumber;
+            public boolean hasNext() {
+                return hasNextAnnotation(
+                        relativeTime, lastSeqNumber, stream);
+            }
+            public AttributedString next() {
+                AttributedStringAndNumber asan = nextAnnotation(
+                        relativeTime, lastSeqNumber, stream);
+                lastSeqNumber = asan.getN();
+                return asan.getA();
+            }
+            public void remove() {
+                throw new UnsupportedOperationException(
+                        "Attempt to modify an immutable list");
+            }
+        };
 	}
 }

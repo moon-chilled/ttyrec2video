@@ -530,8 +530,6 @@ public class VDURenderer {
 		for (int i = 0; i <= buffer.height; i++) {
 			update[i] = true;
 		}
-		Color fg = null;
-		Color bg = null;
 		Color[] colorSave = null;
 		if (!colorPrinting) {
 			colorSave = color;

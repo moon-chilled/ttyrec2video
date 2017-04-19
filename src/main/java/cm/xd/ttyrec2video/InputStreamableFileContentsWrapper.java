@@ -62,9 +62,7 @@ public class InputStreamableFileContentsWrapper implements InputStreamable {
 
 	public boolean isReadable() {
 		try {
-			Boolean b = (Boolean) getFileContentsClass().getMethod("canRead").
-				invoke(fc);
-			return b;
+			return (Boolean) getFileContentsClass().getMethod("canRead").invoke(fc);
 		} catch (ClassNotFoundException | NoSuchMethodException |
 				SecurityException | IllegalAccessException |
 				IllegalArgumentException | InvocationTargetException ex) {
@@ -74,9 +72,7 @@ public class InputStreamableFileContentsWrapper implements InputStreamable {
 
 	public long getLength() {
 		try {
-			Long l = (Long) getFileContentsClass().getMethod("getLength").
-				invoke(fc);
-			return l;
+			return (Long) getFileContentsClass().getMethod("getLength").invoke(fc);
 		} catch (ClassNotFoundException | NoSuchMethodException |
 				SecurityException | IllegalAccessException |
 				IllegalArgumentException | InvocationTargetException ex) {

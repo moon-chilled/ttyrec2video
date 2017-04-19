@@ -72,7 +72,7 @@ public abstract class TtyrecSource extends Thread {
 	private volatile boolean analyzeEventHappened = false;
 	private volatile boolean decodeEventHappened = false;
 	private volatile boolean readEventHappened = false;
-	final boolean debug = false;
+	final static boolean debug = false;
 
 	/**
 	 * Creates the ttyrec source. This should be overriden in implementing
@@ -86,9 +86,9 @@ public abstract class TtyrecSource extends Thread {
 		bytestream = new ByteChunkList();
 		backportAnalyze = null;
 		backportDecode = null;
-		analysisListeners = new HashSet<ProgressListener>();
-		decodeListeners = new HashSet<ProgressListener>();
-		readListeners = new HashSet<ProgressListener>();
+		analysisListeners = new HashSet<>();
+		decodeListeners = new HashSet<>();
+		readListeners = new HashSet<>();
 		listenerTimer = new Timer(100, new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 				firePendingEvents();
