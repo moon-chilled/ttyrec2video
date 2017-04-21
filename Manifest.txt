@@ -1,1 +1,1 @@
-Main-Class: cm.xd.ttyrec2video.MainFrame
+Main-Class: net.elronnd.ttyrec2video.MainFrame
