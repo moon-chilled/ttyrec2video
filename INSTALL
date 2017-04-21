@@ -1,0 +1,1 @@
+ttyrec2video uses the maven build system.  Simply type "mvn package" and an executable JAR file will be produced in the "target/" directory.
