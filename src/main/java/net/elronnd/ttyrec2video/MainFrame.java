@@ -9,7 +9,12 @@ import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.ParseException;
+
 
 /**
  * The application's main frame.
@@ -184,14 +189,13 @@ public class MainFrame {
 
 
 		Options options = new Options();
-		options.addOption("h", false, "Height, in pixels [1080]");
-		options.addOption("in", false, "Input file");
-		options.addOption("out", false, "Output file");
-		options.addOption("bucket", false, "ID of an aws S3 bucket");
-		options.addOption("key", false, "Key for an aws S3 object");
+		options.addOption("h", true, "Height, in pixels [1080]");
+		options.addOption("in", true, "Input file");
+		options.addOption("out", true, "Output file");
+		options.addOption("bucket", true, "ID of an aws S3 bucket");
+		options.addOption("key", true, "Key for an aws S3 object");
 
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
+		CommandLine cmd = new DefaultParser().parse(options, args);
 
 		if (cmd.getOptionValue("h") != null) {
 			try {
@@ -202,8 +206,8 @@ public class MainFrame {
 			}
 		}
 
-		boolean hasinput = cmd.getOptionValue("in") != null;
-		boolean hass3 = (cmd.getOptionValue("bucket") != null) && (cmd.getOptionValue("key") != null);
+		boolean hasinput = cmd.hasOption("in");
+		boolean hass3 = cmd.hasOption("bucket") && cmd.hasOption("key");
 
 		if (hasinput && hass3) {
 			System.out.println("Error -- can't read from both a file and s3");

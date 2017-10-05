@@ -1,5 +1,13 @@
+# Java turds
 *.class
+
+# Vim turds
 .*.swp
+
+# intellij turds
 .idea
 *.iml
+
+# maven turds
 target/
+dependency-reduced-pom.xml
