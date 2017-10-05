@@ -194,8 +194,15 @@ public class MainFrame {
 		options.addOption("out", true, "Output file");
 		options.addOption("bucket", true, "ID of an aws S3 bucket");
 		options.addOption("key", true, "Key for an aws S3 object");
+		options.addOption("help", false, "Show help");
+
 
 		CommandLine cmd = new DefaultParser().parse(options, args);
+
+		if (cmd.hasOption("help")) {
+			System.out.println("Useage: java [-server] -jar ttyrec2video.jar [-h height] [-in input file] [-bucket s3 bucket] [-key s3 object key] -out <output file>");
+			System.exit(0);
+		}
 
 		if (cmd.getOptionValue("h") != null) {
 			try {
