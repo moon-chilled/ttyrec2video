@@ -131,7 +131,7 @@ public abstract class AbstractVideoCodec extends VideoCodec {
 			dataBuffer = new DataBufferByte(w * h * getColorDepth() / 8);
 			WritableRaster wr = Raster.createInterleavedRaster(
 					dataBuffer, w, h, w * getColorDepth() / 8,
-					4, getPixelOrder(), null);
+					getColorDepth() / 8, getPixelOrder(), null);
 
 			image = new BufferedImage(getColorModel(), wr, false, new Hashtable<>());
 
