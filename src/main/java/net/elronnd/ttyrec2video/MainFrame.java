@@ -5,34 +5,32 @@ package net.elronnd.ttyrec2video;
 
 import java.awt.RenderingHints;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import org.apache.commons.cli.*;
 
 /**
  * The application's main frame.
  */
 @SuppressWarnings("serial")
 public class MainFrame {
-	public MainFrame(String in, String out) {
+	public MainFrame(InputStreamable in, String out) {
 		this(in, out, 1080);
 	}
 
 	/**
 	 * Creates a new main window for the Jettyplay application.
 	 */
-	public MainFrame(String in, String out, int size) {
+	public MainFrame(InputStreamable in, String out, int size) {
 		System.out.print("Loading...");
 		// set no file to be open
 		currentSource = null;
 
-		InputStreamable iStream = null;
+		if (in == null) return;
 
-		File f = new File(in);
-		iStream = new InputStreamableFileWrapper(f);
-
-		if (iStream == null) return;
-
-		openSourceFromInputStreamable(iStream);
+		openSourceFromInputStreamable(in);
 
 		if ((currentSource.getTtyrec() == null)) {
 			System.out.println("\nUnknown error loading file.  Exiting.");
@@ -171,17 +169,6 @@ public class MainFrame {
 		return getCurrentSource().getTtyrec();
 	}
 
-	// This method exists to avoid causing problems with missing fields
-	// in early JDK versions.
-	private Object safelyGetRenderingHint(String hintName) {
-		try {
-			return RenderingHints.class.getField(hintName).get(null);
-		} catch(NoSuchFieldException | SecurityException |
-				IllegalArgumentException | IllegalAccessException e) {
-			return RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-		}
-	}
-
 	/**
 	 * The main entry point for the Jettyplay application.
 	 * Parses and applies the effects of command-line arguments; if the
@@ -189,58 +176,54 @@ public class MainFrame {
 	 * window for the Jettyplay application GUI and shows it.
 	 * @param args The command-line arguments to parse.
 	 */
-	public static void main(String[] args) {
-		if ((args.length != 2) && (args.length != 4)) {
-			System.out.println("Usage: java [-server] -jar [-h height] <filename.jar> <infile.ttyrec> <outfile.avi>");
+	public static void main(String[] args) throws FileNotFoundException, ParseException {
+		String out = null;
+		InputStreamable strim = null;
+
+		int height = 1080;
+
+
+		Options options = new Options();
+		options.addOption("h", false, "Height, in pixels [1080]");
+		options.addOption("in", false, "Input file");
+		options.addOption("out", false, "Output file");
+		options.addOption("bucket", false, "ID of an aws S3 bucket");
+		options.addOption("key", false, "Key for an aws S3 object");
+
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = parser.parse(options, args);
+
+		if (cmd.getOptionValue("h") != null) {
+			try {
+				height = Integer.parseInt(cmd.getOptionValue("h"));
+			} catch (NumberFormatException e) {
+				System.out.println("Height must be a number.");
+				System.exit(1);
+			}
+		}
+
+		boolean hasinput = cmd.getOptionValue("in") != null;
+		boolean hass3 = (cmd.getOptionValue("bucket") != null) && (cmd.getOptionValue("key") != null);
+
+		if (hasinput && hass3) {
+			System.out.println("Error -- can't read from both a file and s3");
+		} else if (hasinput) {
+			strim = new InputStreamableFileWrapper(new File(cmd.getOptionValue("in")));
+		} else if (hass3) {
+			strim = new InputStreamableS3(cmd.getOptionValue("bucket"), cmd.getOptionValue("key"));
+		} else {
+			System.out.println("No input file or s3 bucket specified.");
 			System.exit(1);
 		}
 
-		boolean setheight = false;
-		String in = null, out = null;
-		int height = -1;
-
-		if (args.length == 2) {
-			new MainFrame(args[0], args[1]);
+		if (cmd.getOptionValue("out") == null) {
+			System.out.println("At the moment, and output file is required.");
+			System.exit(1);
 		} else {
-			for (String s: args) {
-				if (setheight) {
-					try {
-						height = Integer.parseInt(s);
-					} catch (NumberFormatException e) {
-						System.out.println("Height must be a number.");
-						System.exit(1);
-					}
-					setheight = false;
-					continue;
-				}
-
-				if ("-h".equals(s)) {
-					if (height != -1) {
-						System.out.println("Height can only be set once.");
-						System.exit(1);
-					} else {
-						setheight = true;
-						continue;
-					}
-				}
-
-				// Definitely a file
-				if (in == null) {
-					in = s;
-				} else if (out == null) {
-					out = s;
-				} else {
-					System.out.println("Too many files!");
-					System.exit(1);
-				}
-			}
-
-			if ((in == null) || (out == null)) {
-				System.out.println("Not enough files!");
-				System.exit(1);
-			}
-
-			new MainFrame(in, out, height);
+			out = cmd.getOptionValue("out");
 		}
+
+
+		new MainFrame(strim, out, height);
 	}
 }
