@@ -4,7 +4,7 @@
  */
 
 /*
- * SaveAsVideoDialog.java
+ * SaveVideo.java
  *
  * Created on 17-Dec-2012, 05:21:28
  */
@@ -23,7 +23,7 @@ import java.util.concurrent.CancellationException;
  * @author ais523
  */
 @SuppressWarnings("serial")
-public class SaveAsVideoDialog {
+public class SaveVideo {
 	private final Ttyrec ttyrec;
 
 	private VideoContainer encodingContainer;
@@ -33,7 +33,7 @@ public class SaveAsVideoDialog {
 	 * @param parent The MainFrame that created this dialog box.
 	 * @param ttyrec The ttyrec to save as a video. 
 	 */
-	public SaveAsVideoDialog(Ttyrec ttyrec, String outfilename, int size) {
+	public SaveVideo(Ttyrec ttyrec, String outfilename, int size) {
 		this.ttyrec = ttyrec;
 		this.outfilename = outfilename;
 		this.encodingContainer = null;

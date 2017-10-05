@@ -13,7 +13,6 @@ import java.util.regex.PatternSyntaxException;
  */
 @SuppressWarnings("serial")
 public class MainFrame {
-
 	public MainFrame(String in, String out) {
 		this(in, out, 1080);
 	}
@@ -40,11 +39,13 @@ public class MainFrame {
 			System.exit(2);
 		}
 
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			System.out.println("\nInterrupted.  Exiting.");
-			System.exit(3);
+		while (currentSource.backportDecodeProgress() == 0) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				System.out.println("\nInterrupted.  Exiting.");
+				System.exit(3);
+			}
 		}
 
 		while (currentSource.backportDecodeProgress() < currentSource.getTtyrec().getFrameCount()) {
@@ -61,7 +62,7 @@ public class MainFrame {
 
 		System.out.print("Saving...");
 
-		new SaveAsVideoDialog(currentSource.getTtyrec(), out, size);
+		new SaveVideo(currentSource.getTtyrec(), out, size);
 		System.out.println("done!");
 		System.exit(0);
 	}
