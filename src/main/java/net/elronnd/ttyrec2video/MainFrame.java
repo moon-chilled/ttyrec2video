@@ -67,27 +67,6 @@ public class MainFrame {
 		System.exit(0);
 	}
 
-	private void setTtyrecFormat(Ttyrec.Encoding format) {
-		if (getCurrentTtyrec() == null) return;
-		if (getCurrentTtyrec().getEncoding() == format) return;
-		getCurrentTtyrec().setEncoding(format);
-		getCurrentSource().repeatCurrentDecodeWorker();
-	}
-
-	private String timeToString(double time) {
-		int t = (int)time;
-		if (t<0) t = 0;
-		String s = (t/60) + ":";
-		if (t > 3600) {
-			s = (t/3600) + ":";
-			if ((t/60)%60 < 10) s += "0";
-			s += (t/60)%60 + ":";
-		}
-		if (t%60 < 10) s += "0";
-		s += t%60;
-		return s;
-	}
-
 	private void unloadFile() {
 		if (getCurrentSource() != null) getCurrentSource().completeCancel();
 		currentSource = null;
