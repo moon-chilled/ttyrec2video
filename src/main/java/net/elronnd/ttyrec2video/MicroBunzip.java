@@ -102,7 +102,7 @@ public class MicroBunzip {
 		char[] selectors = new char[32768];
 		group_data[] groups = new group_data[MAX_GROUPS]; /* huffman coding tables */
 		public bunzip_data() {
-			for (int i = 0; i < MAX_GROUPS; i++) 
+			for (int i = 0; i < MAX_GROUPS; i++)
 				groups[i] = new group_data();
 		}
 	}

@@ -4,7 +4,7 @@
     <groupId>net.elronnd</groupId>
     <artifactId>ttyrec2video</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.1-BETA</version>
+    <version>0.2.0-ALPHA</version>
     <name>ttyrec2video</name>
     <url>http://maven.apache.org</url>
 
@@ -16,6 +16,15 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <sonar.organization>elronnd-github</sonar.organization>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>google-api-services</id>
+            <url>http://google-api-client-libraries.appspot.com/mavenrepo</url>
+        </repository>
+    </repositories>
+
+
 
     <dependencies>
         <dependency>
@@ -34,6 +43,29 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-youtube</artifactId>
+            <version>v3-rev182-1.22.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson2</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 

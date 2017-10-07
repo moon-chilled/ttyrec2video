@@ -5,6 +5,7 @@ package net.elronnd.ttyrec2video;
 
 import java.awt.RenderingHints;
 import java.io.File;
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -67,7 +68,6 @@ public class MainFrame {
 
 		new SaveVideo(currentSource.getTtyrec(), out, size);
 		System.out.println("done!");
-		System.exit(0);
 	}
 
 	private void unloadFile() {
@@ -181,7 +181,7 @@ public class MainFrame {
 	 * window for the Jettyplay application GUI and shows it.
 	 * @param args The command-line arguments to parse.
 	 */
-	public static void main(String[] args) throws FileNotFoundException, ParseException {
+	public static void main(String[] args) throws FileNotFoundException, ParseException, IOException {
 		String out = null;
 		InputStreamable strim = null;
 
@@ -194,6 +194,9 @@ public class MainFrame {
 		options.addOption("out", true, "Output file");
 		options.addOption("bucket", true, "ID of an aws S3 bucket");
 		options.addOption("key", true, "Key for an aws S3 object");
+		options.addOption("yttitle", true, "Title for a youtube upload");
+		options.addOption("ytdescr", true, "Youtube video description");
+		options.addOption("yttoken", true, "Authorization token for youtube");
 		options.addOption("help", false, "Show help");
 
 
@@ -227,14 +230,13 @@ public class MainFrame {
 			System.exit(1);
 		}
 
-		if (cmd.getOptionValue("out") == null) {
-			System.out.println("At the moment, and output file is required.");
-			System.exit(1);
-		} else {
-			out = cmd.getOptionValue("out");
-		}
-
+		out = cmd.hasOption("out") ? cmd.getOptionValue("out") : cmd.getOptionValue("in") + ".avi";
 
 		new MainFrame(strim, out, height);
+
+		boolean hasyt = cmd.hasOption("yttitle") && cmd.hasOption("yttoken") && cmd.hasOption("ytdescr");
+		if (hasyt) {
+			new YoutubeUpload(new File(out), cmd.getOptionValue("yttoken"), cmd.getOptionValue("yttitle"), cmd.getOptionValue("ytdescr"));
+		}
 	}
 }
