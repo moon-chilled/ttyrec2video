@@ -22,14 +22,7 @@ import org.apache.commons.cli.ParseException;
  */
 @SuppressWarnings("serial")
 public class MainFrame {
-	public MainFrame(InputStreamable in, String out) {
-		this(in, out, 1080);
-	}
-
-	/**
-	 * Creates a new main window for the Jettyplay application.
-	 */
-	public MainFrame(InputStreamable in, String out, int size) {
+	public MainFrame(InputStreamable in, String out, int size, boolean shouldexit) {
 		System.out.print("Loading...");
 		// set no file to be open
 		currentSource = null;
@@ -68,6 +61,10 @@ public class MainFrame {
 
 		new SaveVideo(currentSource.getTtyrec(), out, size);
 		System.out.println("done!");
+
+		if (shouldexit) {
+			System.exit(0);
+		}
 	}
 
 	private void unloadFile() {
@@ -230,11 +227,12 @@ public class MainFrame {
 			System.exit(1);
 		}
 
-		out = cmd.hasOption("out") ? cmd.getOptionValue("out") : cmd.getOptionValue("in") + ".avi";
-
-		new MainFrame(strim, out, height);
+		out = cmd.hasOption("out") ? cmd.getOptionValue("out") : cmd.hasOption("in") ? cmd.getOptionValue("in") + ".avi" : "out.avi";
 
 		boolean hasyt = cmd.hasOption("yttitle") && cmd.hasOption("yttoken") && cmd.hasOption("ytdescr");
+
+		new MainFrame(strim, out, height, !hasyt);
+
 		if (hasyt) {
 			new YoutubeUpload(new File(out), cmd.getOptionValue("yttoken"), cmd.getOptionValue("yttitle"), cmd.getOptionValue("ytdescr"));
 		}
