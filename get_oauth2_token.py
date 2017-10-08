@@ -9,3 +9,6 @@ def get_token(client_id, client_secret):
 	credentials = run_flow(flow, storage)
 
 	return credentials.access_token
+
+if __name__ == "__main__":
+	print(get_token(input("Please enter your client id: "), input("Please enter your client secret: ")))
