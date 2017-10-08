@@ -189,8 +189,8 @@ public class MainFrame {
 		options.addOption("h", true, "Height, in pixels [1080]");
 		options.addOption("in", true, "Input file");
 		options.addOption("out", true, "Output file");
-		options.addOption("bucket", true, "ID of an aws S3 bucket");
-		options.addOption("key", true, "Key for an aws S3 object");
+		options.addOption("s3bucket", true, "ID of an aws S3 bucket");
+		options.addOption("s3key", true, "Key for an aws S3 object");
 		options.addOption("yttitle", true, "Title for a youtube upload");
 		options.addOption("ytdescr", true, "Youtube video description");
 		options.addOption("yttoken", true, "Authorization token for youtube");
@@ -200,7 +200,7 @@ public class MainFrame {
 		CommandLine cmd = new DefaultParser().parse(options, args);
 
 		if (cmd.hasOption("help")) {
-			System.out.println("Useage: java [-server] -jar ttyrec2video.jar [-h height] [-in input file] [-bucket s3 bucket] [-key s3 object key] -out <output file>");
+			System.out.println("Useage: java [-server] -jar ttyrec2video.jar [-h height] [-in input file] [-s3bucket s3 bucket -s3key s3 object key] -out <output file> [-yttitle youtube title -ytdescr youtube video description -yttoken OAuth2 token for use with youtube]");
 			System.exit(0);
 		}
 
@@ -214,14 +214,14 @@ public class MainFrame {
 		}
 
 		boolean hasinput = cmd.hasOption("in");
-		boolean hass3 = cmd.hasOption("bucket") && cmd.hasOption("key");
+		boolean hass3 = cmd.hasOption("s3bucket") && cmd.hasOption("s3key");
 
 		if (hasinput && hass3) {
 			System.out.println("Error -- can't read from both a file and s3");
 		} else if (hasinput) {
 			strim = new InputStreamableFileWrapper(new File(cmd.getOptionValue("in")));
 		} else if (hass3) {
-			strim = new InputStreamableS3(cmd.getOptionValue("bucket"), cmd.getOptionValue("key"));
+			strim = new InputStreamableS3(cmd.getOptionValue("s3bucket"), cmd.getOptionValue("s3key"));
 		} else {
 			System.out.println("No input file or s3 bucket specified.");
 			System.exit(1);
