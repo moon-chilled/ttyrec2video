@@ -11,4 +11,4 @@ def get_token(client_id, client_secret):
 	return credentials.access_token
 
 if __name__ == "__main__":
-	print(get_token(input("Please enter your client id: "), input("Please enter your client secret: ")))
+	print("Your token is ", get_token(input("Please enter your client id: "), input("Please enter your client secret: ")))

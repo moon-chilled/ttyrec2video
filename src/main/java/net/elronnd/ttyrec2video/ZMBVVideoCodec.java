@@ -30,7 +30,7 @@ public class ZMBVVideoCodec extends AbstractVideoCodec {
 	public ZMBVVideoCodec(int height, Font terminalFont, Object object,
 			boolean allowBold) {
 		super(height, terminalFont, object, allowBold);
-		deflater = new Deflater(Deflater.BEST_COMPRESSION);
+		deflater = new Deflater(Deflater.BEST_SPEED);
 	}
 
 	@Override

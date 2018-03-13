@@ -88,7 +88,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>net.elronnd.ttyrec2video.MainFrame</mainClass>
+                            <mainClass>net.elronnd.ttyrec2video.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

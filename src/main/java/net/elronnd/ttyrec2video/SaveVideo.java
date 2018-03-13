@@ -30,8 +30,9 @@ public class SaveVideo {
 	String outfilename;
 
 	/** Creates a new form to save a ttyrec as video
-	 * @param parent The MainFrame that created this dialog box.
 	 * @param ttyrec The ttyrec to save as a video. 
+	 * @param outfilename the name of the file to save the generated video as
+	 * @param size the height of an individual character
 	 */
 	public SaveVideo(Ttyrec ttyrec, String outfilename, int size) {
 		this.ttyrec = ttyrec;
